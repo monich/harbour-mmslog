@@ -90,26 +90,34 @@ void register_types(const char* uri, int v1 = 1, int v2 = 0)
 
 int main(int argc, char *argv[])
 {
-    QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
-    QScopedPointer<QQuickView> viewer(SailfishApp::createView());
-
+    QGuiApplication* app = SailfishApp::application(argc, argv);
     TransferMethodInfo::registerType();
     register_types(PLUGIN_PREFIX, 1, 0);
 
-    FsIoLogModel* mmsLog = new FsIoLogModel(app.data());
-    MMSEngine* mmsEngine = new MMSEngine(mmsLog->dirName(), app.data());
-    mmsLog->connect(mmsEngine, SIGNAL(message(QString,bool)),
-        SLOT(append(QString,bool)));
+    // Load translations
+    QLocale locale;
+    QTranslator* translator = new QTranslator(app);
+    QString transDir = SailfishApp::pathTo("translations").toLocalFile();
+    QString transFile("harbour-mmslog");
+    if (translator->load(locale, transFile, "-", transDir) ||
+        translator->load(transFile, transDir)) {
+        app->installTranslator(translator);
+    } else {
+        LOG("Failed to load translator for" << locale);
+        delete translator;
+    }
+    translator = new QTranslator(app);
+    if (translator->load(locale, "sailfish_transferengine_plugins", "-",
+        "/usr/share/translations")) {
+        app->installTranslator(translator);
+    } else {
+        LOG("Failed to load transferengine plugin translator for" << locale);
+        delete translator;
+    }
 
-    sigChildHandler = SigChildAction::create(app.data());
+    // Install signal handler
+    sigChildHandler = SigChildAction::create(app);
     if (sigChildHandler) {
-        mmsEngine->connect(sigChildHandler,
-            SIGNAL(processDied(int,int)),
-            SLOT(processDied(int,int)));
-        mmsLog->connect(sigChildHandler,
-            SIGNAL(processDied(int,int)),
-            SLOT(processDied(int,int)));
-
         struct sigaction act;
         memset (&act, '\0', sizeof(act));
         act.sa_sigaction = &sigchild_action;
@@ -117,10 +125,26 @@ int main(int argc, char *argv[])
         sigaction(SIGCHLD, &act, NULL);
     }
 
-    QQmlContext* context = viewer->rootContext();
+    // Start (or restart) mms-engine
+    FsIoLogModel* mmsLog = new FsIoLogModel(app);
+    MMSEngine* mmsEngine = new MMSEngine(mmsLog->dirName(), app);
+    mmsLog->connect(mmsEngine, SIGNAL(message(QString,bool)),
+        SLOT(append(QString,bool)));
+    if (sigChildHandler) {
+        mmsEngine->connect(sigChildHandler,
+            SIGNAL(processDied(int,int)),
+            SLOT(processDied(int,int)));
+        mmsLog->connect(sigChildHandler,
+            SIGNAL(processDied(int,int)),
+            SLOT(processDied(int,int)));
+    }
+
+    // Create ans show the view
+    QQuickView* view = SailfishApp::createView();
+    QQmlContext* context = view->rootContext();
     context->setContextProperty("FsIoLog", mmsLog);
-    viewer->setSource(SailfishApp::pathTo("qml/main.qml"));
-    viewer->showFullScreen();
+    view->setSource(SailfishApp::pathTo("qml/main.qml"));
+    view->showFullScreen();
 
     save_ofono_info("org.ofono.SimManager.GetProperties",
         qPrintable(mmsLog->dirName() + "/SimManager.GetProperties.txt"));
@@ -130,5 +154,7 @@ int main(int argc, char *argv[])
     int ret = app->exec();
 
     sigChildHandler = NULL;
+    delete view;
+    delete app;
     return ret;
 }

@@ -38,7 +38,7 @@ CoverBackground {
     Label {
         id: title
         horizontalAlignment: Text.AlignHCenter
-        text: "MMS log"
+        text: qsTr("mmslog-cover-title")
         anchors {
             top: parent.top
             left: parent.left

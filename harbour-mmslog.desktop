@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=MMS Logger
+Name[ru]=MMS Лог
 X-Nemo-Application-Type=silica-qt5
 Icon=harbour-mmslog
 Exec=harbour-mmslog

@@ -135,9 +135,15 @@ QVariant TransferMethodsModel::data(const QModelIndex &index, int role) const
     if (row >= 0 && row < iFilteredList.count()) {
         const TransferMethodInfo& info = iMethodList.at(iFilteredList.at(row));
         switch (role) {
-        case DisplayNameRole: return info.displayName;
-        case UserNameRole:    return info.userName;
+        case DisplayNameRole: {
+            QString s(qApp->translate(NULL, qPrintable(info.displayName)));
+            if (!s.isEmpty()) return s;
+            /* Otherwise default to methodId */
+            LOG("no translation for" << info.displayName);
+        }
+        /* nobreak */
         case MethodIdRole:    return info.methodId;
+        case UserNameRole:    return info.userName;
         case ShareUIPathRole: return info.shareUIPath;
         case AccountIdRole:   return info.accountId;
         }

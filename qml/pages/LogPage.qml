@@ -49,17 +49,29 @@ Page {
 
         PullDownMenu {
             id: pullDownMenu
-            MenuItem { text: "Clear log"; onClicked: FsIoLog.clear() }
-            MenuItem { text: "Pack and send"; onClicked: packAndShare() }
+            MenuItem {
+                text: qsTr("mmslog-logpage-pm-clear-log")
+                onClicked: FsIoLog.clear()
+            }
+            MenuItem {
+                text: qsTr("mmslog-logpage-pm-pack-and-send")
+                onClicked: packAndShare()
+            }
         }
 
         PushUpMenu {
             id: pushUpMenu
-            MenuItem { text: "Pack and send"; onClicked: packAndShare() }
-            MenuItem { text: "Clear log"; onClicked: FsIoLog.clear() }
+            MenuItem {
+                text: qsTr("mmslog-logpage-pm-pack-and-send")
+                onClicked: packAndShare()
+            }
+            MenuItem {
+                text: qsTr("mmslog-logpage-pm-clear-log")
+                onClicked: FsIoLog.clear()
+            }
         }
 
-        header: PageHeader { title: "MMS engine log" }
+        header: PageHeader { title: qsTr("mmslog-logpage-title") }
         delegate: Item {
             width: parent.width
             height: textLabel.height

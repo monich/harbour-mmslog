@@ -59,7 +59,7 @@ SilicaListView {
 
         Label {
             id: displayNameLabel
-            text: methodId
+            text: displayName
             color: backgroundItem.highlighted ? Theme.highlightColor : Theme.primaryColor
             truncationMode: TruncationMode.Fade
             x: Theme.paddingLarge

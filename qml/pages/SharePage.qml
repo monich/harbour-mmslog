@@ -39,7 +39,7 @@ Page {
     property bool _canShare: !FsIoLog.packing && !minStartupAnimationDelay.running
     property bool _portrait: page.orientation === Orientation.Portrait
 
-    // The timer makes sure that animation is displayed for at least 2 seconds
+    // The timer makes sure that animation is displayed for at least 1 second
     Timer {
         id: minStartupAnimationDelay
         interval: 1000
@@ -52,7 +52,7 @@ Page {
 
         PageHeader {
             id: header
-            title: "Pack and send"
+            title: qsTr("mmslog-sharepage-header")
         }
 
         ShareMethodList {
@@ -94,12 +94,7 @@ Page {
             font.pixelSize: Theme.fontSizeExtraSmall
             verticalAlignment: Text.AlignTop
             color: Theme.secondaryColor
-            text: "Keep in mind that some of the information contained \
-in this archive may be considered private. If you would like to check \
-what you are about to send, please consider sending it to yourself first \
-and emailing this file to mms-debug@jolla.com later from your computer. \
-If you trust Jolla, then you can conveniently email it to Jolla directly \
-from your phone."
+            text: qsTr("mmslog-sharepage-warning")
         }
     }
 
@@ -117,7 +112,7 @@ from your phone."
         Label {
             anchors.horizontalCenter: busy.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
-            text: "Please wait..."
+            text: qsTr("mmslog-sharepage-please-wait")
         }
     }
 }

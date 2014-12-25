@@ -14,6 +14,7 @@ BuildRequires: pkgconfig(Qt5Qml)
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: desktop-file-utils
+BuildRequires: qt5-qttools-linguist
 
 %description
 Application for gathering MMS troubleshooting information.
@@ -42,5 +43,6 @@ desktop-file-install --delete-original \
 %defattr(-,root,root,-)
 %{_bindir}/%{name}
 %{_datadir}/%{name}/qml
+%{_datadir}/%{name}/translations
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png
