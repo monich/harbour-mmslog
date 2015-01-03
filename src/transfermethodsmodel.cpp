@@ -31,7 +31,7 @@
 */
 
 #include "transfermethodsmodel.h"
-#include "org.nemo.transferengine.h"
+#include "transferengine_interface.h"
 #include "mmsdebug.h"
 
 TransferMethodsModel::TransferMethodsModel(QObject* aParent):

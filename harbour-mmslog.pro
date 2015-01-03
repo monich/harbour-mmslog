@@ -8,12 +8,13 @@ CONFIG(debug, debug|release) {
   DEFINES += DEBUG
 }
 
+INCLUDEPATH += src
+
 HEADERS += \
     src/mmsengine.h \
     src/mmsenginelog.h \
     src/mmsdebug.h \
     src/mmslogmodel.h \
-    src/org.nemo.transferengine.h \
     src/sigchildaction.h \
     src/transfermethodinfo.h \
     src/transfermethodsmodel.h
@@ -23,7 +24,6 @@ SOURCES += \
     src/mmsengine.cpp \
     src/mmsenginelog.cpp \
     src/mmslogmodel.cpp \
-    src/org.nemo.transferengine.cpp \
     src/sigchildaction.cpp \
     src/transfermethodinfo.cpp \
     src/transfermethodsmodel.cpp
@@ -39,6 +39,11 @@ OTHER_FILES += \
     rpm/harbour-mmslog.changes \
     src/org.nemo.transferengine.xml \
     translations/*.ts
+
+DBUS_INTERFACES += transferengine
+transferengine.files = src/org.nemo.transferengine.xml
+transferengine.header_flags = -N -c OrgNemoTransferEngine -i transfermethodinfo.h
+transferengine.source_flags = -N -c OrgNemoTransferEngine
 
 # to disable building translations every time, comment out the
 # following CONFIG line
