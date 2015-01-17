@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -39,7 +39,12 @@ Page {
 
     function packAndShare() {
         FsIoLog.pack()
-        pageStack.push(Qt.resolvedUrl("SharePage.qml"))
+        pageStack.push(sharePageComponent)
+    }
+
+    Component {
+        id: sharePageComponent
+        SharePage {}
     }
 
     SilicaListView {
