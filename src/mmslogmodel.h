@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -41,6 +41,7 @@ class FsIoLogModel : public QAbstractListModel
 {
     Q_OBJECT
     class Entry;
+    typedef void (FsIoLogModel::*LineChanged)(QString);
     Q_PROPERTY(bool packing READ packing NOTIFY packingChanged)
     Q_PROPERTY(QString archivePath READ archivePath NOTIFY archivePathChanged)
     Q_PROPERTY(QString archiveType READ archiveType NOTIFY archiveTypeChanged)
@@ -110,6 +111,7 @@ private:
 
 private:
     QList<Entry*> iMessages;
+    QList<LineChanged> iLineChangedSignal;
     QTemporaryDir iTempDir;
     QFile iLogFile;
     QString iArchivePath;

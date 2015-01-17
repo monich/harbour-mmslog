@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -86,6 +86,16 @@ FsIoLogModel::FsIoLogModel(QObject* aParent) :
     iArchiveType("application/x-gzip"),
     iPid(-1)
 {
+    iLineChangedSignal.append(&FsIoLogModel::line0Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line1Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line2Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line3Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line4Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line5Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line6Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line7Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line8Changed);
+    iLineChangedSignal.append(&FsIoLogModel::line9Changed);
     iTempDir.setAutoRemove(true);
     LOG("Temporary directory" << iTempDir.path());
     if (!iLogFile.open(QFile::Text | QFile::ReadWrite)) {
@@ -193,34 +203,9 @@ void FsIoLogModel::append(QString aMessage, bool aMmsEngineLog)
     iMessages.append(new Entry(aMessage, aMmsEngineLog));
     endInsertRows();
     emit dataChanged(createIndex(count, 0), createIndex(count, 1));
-
-    line0Changed(line0());
-    if (count > 0) {
-        line1Changed(line1());
-        if (count > 1) {
-            line2Changed(line2());
-            if (count > 2) {
-                line3Changed(line3());
-                if (count > 3) {
-                    line4Changed(line4());
-                    if (count > 4) {
-                        line5Changed(line5());
-                        if (count > 5) {
-                            line6Changed(line6());
-                            if (count > 6) {
-                                line7Changed(line7());
-                                if (count > 7) {
-                                    line8Changed(line8());
-                                    if (count > 8) {
-                                        line9Changed(line9());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    const int n = qMin(iLineChangedSignal.count(), iMessages.count());
+    for (int i=0; i<n; i++) {
+        (this->*iLineChangedSignal.at(i))(line(i));
     }
 }
 
@@ -229,16 +214,10 @@ void FsIoLogModel::clear()
     iLogFile.flush();
     beginResetModel();
     deleteAllMessages();
-    line9Changed(QString());
-    line8Changed(QString());
-    line7Changed(QString());
-    line6Changed(QString());
-    line5Changed(QString());
-    line4Changed(QString());
-    line3Changed(QString());
-    line2Changed(QString());
-    line1Changed(QString());
-    // Next append will signal line0Changed()
+    // line0Changed() will be signalled by append("Log cleared")
+    for (int i=1; i<iLineChangedSignal.count(); i++) {
+        (this->*iLineChangedSignal.at(i))(QString());
+    }
     append("Log cleared");
     endResetModel();
 }
