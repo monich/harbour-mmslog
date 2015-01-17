@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -38,6 +38,7 @@ Page {
     allowedOrientations: window.allowedOrientations
     property bool _canShare: !FsIoLog.packing && !minStartupAnimationDelay.running
     property bool _portrait: page.orientation === Orientation.Portrait
+    property real _fullHeight: _portrait ? window.height : window.width
 
     // The timer makes sure that animation is displayed for at least 1 second
     Timer {
@@ -82,14 +83,9 @@ Page {
             opacity: _canShare
             width: (_portrait ? parent.width : parent.width*2/5) - 2*Theme.paddingLarge
             height: implicitHeight
+            x: _portrait ? Theme.paddingLarge : (parent.width - width - Theme.paddingLarge)
+            y: _portrait ? (_fullHeight - height - Theme.paddingLarge) : (header.y + header.height)
             Behavior on opacity { FadeAnimation {} }
-            anchors {
-                top: _portrait ? undefined : header.bottom
-                bottom: _portrait ? parent.bottom : undefined
-                right: parent.right
-                rightMargin: Theme.paddingLarge
-                bottomMargin: Theme.paddingLarge
-            }
             wrapMode: Text.WordWrap
             font.pixelSize: Theme.fontSizeExtraSmall
             verticalAlignment: Text.AlignTop
