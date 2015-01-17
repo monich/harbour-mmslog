@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -82,10 +82,21 @@ save_ofono_info(
     }
 }
 
-void register_types(const char* uri, int v1 = 1, int v2 = 0)
+static void register_types(const char* uri, int v1 = 1, int v2 = 0)
 {
     qmlRegisterType<FsIoLogModel>(uri, v1, v2, "FsIoLogModel");
     qmlRegisterType<TransferMethodsModel>(uri, v1, v2, "TransferMethodsModel");
+}
+
+static bool load_transferengine_translations(QTranslator* tr, QLocale locale)
+{
+    if (tr->load(locale, "sailfish_transferengine_plugins", "-",
+        "/usr/share/translations")) {
+        return true;
+    } else {
+        LOG("Failed to load transferengine plugin translator for" << locale);
+        return false;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -107,11 +118,10 @@ int main(int argc, char *argv[])
         delete translator;
     }
     translator = new QTranslator(app);
-    if (translator->load(locale, "sailfish_transferengine_plugins", "-",
-        "/usr/share/translations")) {
+    if (load_transferengine_translations(translator, locale) ||
+        load_transferengine_translations(translator, QLocale("en_GB"))) {
         app->installTranslator(translator);
     } else {
-        LOG("Failed to load transferengine plugin translator for" << locale);
         delete translator;
     }
 
