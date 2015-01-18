@@ -37,7 +37,15 @@
 
 #include <signal.h>
 
-#define LOG_FILE "mms-engine.log"
+#define LOG_FILE                "mms-engine.log"
+#define DCONF_PATH              "/apps/harbour-mmslog/"
+#define DCONF_LOG_SIZE_LIMIT    "logSizeLimit"
+
+#define LOG_SIZE_LIMIT_DEFAULT  (1000)
+#define LOG_SIZE_LIMIT_MIN      (100)
+#define LOG_SIZE_LIMIT_NONE     (0)
+#define LOG_REMOVE_MAX          (20)
+#define LOG_REMOVE_DEFAULT      LOG_REMOVE_MAX
 
 enum FsIoLogRole {
     TimeRole = Qt::UserRole,
@@ -84,8 +92,13 @@ FsIoLogModel::FsIoLogModel(QObject* aParent) :
     iTempDir("/tmp/mms_XXXXXX"),
     iLogFile(iTempDir.path().append("/" LOG_FILE)),
     iArchiveType("application/x-gzip"),
+    iLogSizeLimitConf(new MGConfItem(DCONF_PATH DCONF_LOG_SIZE_LIMIT, this)),
     iPid(-1)
 {
+    updateLogSizeLimit();
+    connect(iLogSizeLimitConf,
+        SIGNAL(valueChanged()),
+        SLOT(updateLogSizeLimit()));
     iLineChangedSignal.append(&FsIoLogModel::line0Changed);
     iLineChangedSignal.append(&FsIoLogModel::line1Changed);
     iLineChangedSignal.append(&FsIoLogModel::line2Changed);
@@ -192,12 +205,29 @@ QString FsIoLogModel::line(int aIndex) const
     return QString();
 }
 
+bool FsIoLogModel::removeExtraLines(int aReserve)
+{
+    const int count = iMessages.count();
+    if (iLogSizeLimit > 0 && (count + aReserve) > iLogSizeLimit) {
+        const int nremove = (count - iLogSizeLimit) + iLogRemoveCount;
+        LOG("removing last" << nremove << "lines");
+        beginRemoveRows(QModelIndex(), 0, nremove-1);
+        for (int i=0; i<nremove; i++) delete iMessages.at(i);
+        iMessages.erase(iMessages.begin(), iMessages.begin()+nremove);
+        endRemoveRows();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void FsIoLogModel::append(QString aMessage, bool aMmsEngineLog)
 {
     if (aMmsEngineLog) {
         iLogFile.write(aMessage.toUtf8());
         iLogFile.write("\n");
     }
+    removeExtraLines(1);
     const int count = iMessages.count();
     beginInsertRows(QModelIndex(), count+1, count+1);
     iMessages.append(new Entry(aMessage, aMmsEngineLog));
@@ -270,5 +300,38 @@ void FsIoLogModel::processDied(int aPid, int aStatus)
         LOG("Tar done, pid" << aPid <<", status" << aStatus);
         iPid = -1;
         packingChanged();
+    }
+}
+
+void FsIoLogModel::updateLogSizeLimit()
+{
+    iLogSizeLimit = LOG_SIZE_LIMIT_DEFAULT;
+    iLogRemoveCount = LOG_REMOVE_DEFAULT;
+    QVariant value = iLogSizeLimitConf->value();
+    if (value.isValid()) {
+        bool ok = false;
+        int ival = value.toInt(&ok);
+        if (ok) {
+            if (ival <= 0) {
+                iLogSizeLimit = LOG_SIZE_LIMIT_NONE;
+            } else if (ival < LOG_SIZE_LIMIT_MIN) {
+                iLogSizeLimit = LOG_SIZE_LIMIT_MIN;
+            } else {
+                iLogSizeLimit = ival;
+            }
+            if (iLogSizeLimit > 0) {
+                iLogRemoveCount = iLogSizeLimit/50;
+                if (iLogRemoveCount < 1) {
+                    iLogRemoveCount = 1;
+                } else if (iLogRemoveCount > LOG_REMOVE_MAX) {
+                    iLogRemoveCount = LOG_REMOVE_MAX;
+                }
+            }
+        }
+    }
+    LOG("log size limit" << iLogSizeLimit);
+    if (removeExtraLines(0)) {
+        const int count = iMessages.count();
+        emit dataChanged(createIndex(count, 0), createIndex(count, 1));
     }
 }

@@ -36,6 +36,7 @@
 #include <QAbstractListModel>
 #include <QTemporaryDir>
 #include <QFile>
+#include <MGConfItem>
 
 class FsIoLogModel : public QAbstractListModel
 {
@@ -104,10 +105,12 @@ Q_SIGNALS:
 private Q_SLOTS:
     void append(QString aMessage, bool aMmsEngineLog = false);
     void processDied(int aPid, int aStatus);
+    void updateLogSizeLimit();
 
 private:
     QString line(int aIndex) const;
     void deleteAllMessages();
+    bool removeExtraLines(int aReserve);
 
 private:
     QList<Entry*> iMessages;
@@ -116,6 +119,9 @@ private:
     QFile iLogFile;
     QString iArchivePath;
     QString iArchiveType;
+    MGConfItem* iLogSizeLimitConf;
+    int iLogSizeLimit;
+    int iLogRemoveCount;
     int iPid;
 };
 
