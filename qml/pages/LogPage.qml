@@ -36,6 +36,15 @@ import Sailfish.Silica 1.0
 Page {
     id: page
     allowedOrientations: window.allowedOrientations
+    property bool _clear
+
+    // Clearing the model when pully menu is open results in unpleasant
+    // visual effect. Couldn't find a better way than waiting until the
+    // pully menu disappears from the screen
+    function doClear() {
+        _clear = false
+        FsIoLog.clear()
+    }
 
     function packAndShare() {
         FsIoLog.pack()
@@ -56,12 +65,13 @@ Page {
             id: pullDownMenu
             MenuItem {
                 text: qsTr("mmslog-logpage-pm-clear-log")
-                onClicked: FsIoLog.clear()
+                onClicked: _clear = true
             }
             MenuItem {
                 text: qsTr("mmslog-logpage-pm-pack-and-send")
                 onClicked: packAndShare()
             }
+            onActiveChanged: if (!active && _clear) doClear()
         }
 
         PushUpMenu {
@@ -72,8 +82,9 @@ Page {
             }
             MenuItem {
                 text: qsTr("mmslog-logpage-pm-clear-log")
-                onClicked: FsIoLog.clear()
+                onClicked: _clear = true
             }
+            onActiveChanged: if (!active && _clear) doClear()
         }
 
         header: PageHeader { title: qsTr("mmslog-logpage-title") }
@@ -112,9 +123,8 @@ Page {
             }
         }
 
-        onHeightChanged: {
-            if (view.atYEnd) positioner.restart()
-        }
+        onHeightChanged: if (view.atYEnd) positioner.restart()
+
         VerticalScrollDecorator {}
     }
 
