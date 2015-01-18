@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -51,13 +51,18 @@ MMSEngine::MMSEngine(QString aTempDir, QObject* aParent) :
     iPipe(-1)
 {
     killEngine();
-    startEngine();
+    iEngineLog = startEngine();
 }
 
 MMSEngine::~MMSEngine()
 {
     LOG("terminating");
+    if (iPid > 0) kill(iPid, SIGTERM);
     if (iPipe >= 0) close(iPipe);
+    if (iEngineLog) {
+        iEngineLog->wait();
+        delete iEngineLog;
+    }
 }
 
 void MMSEngine::killEngine()
@@ -77,18 +82,8 @@ void MMSEngine::killEngine()
     }
 }
 
-void MMSEngine::startEngine()
+MMSEngineLog* MMSEngine::startEngine()
 {
-    if (iPid > 0) {
-        kill(iPid, SIGTERM);
-        iPid = -1;
-    }
-
-    if (iPipe >= 0) {
-        close(iPipe);
-        iPipe = -1;
-    }
-
     // Use a pseudoterminal to get around the block buffering performed
     // by the stdio library when standard output is redirected to a file
     // or pipe. We need line-buffering to watch the output in real time.
@@ -103,8 +98,7 @@ void MMSEngine::startEngine()
             if (iPid > 0) {
                 // Parent
                 LOG("Stared MMS engine, pid" << iPid);
-                startLogThread(iPipe = pty);
-                return;
+                return startLogThread(iPipe = pty);
             } else if (iPid == 0) {
                 // Child
                 close(pty);
@@ -124,6 +118,7 @@ void MMSEngine::startEngine()
         }
         close(pty);
     }
+    return NULL;
 }
 
 void MMSEngine::processDied(int aPid, int aStatus)
@@ -160,13 +155,14 @@ void MMSEngine::forward(QString aMessage)
     emit message(aMessage, true);
 }
 
-void MMSEngine::startLogThread(int aDescriptor)
+MMSEngineLog* MMSEngine::startLogThread(int aDescriptor)
 {
-    MMSEngineLog* logThread = new MMSEngineLog(aDescriptor, this);
+    MMSEngineLog* logThread = new MMSEngineLog(aDescriptor);
     connect(logThread, SIGNAL(finished()), logThread, SLOT(deleteLater()));
     connect(logThread, SIGNAL(message(QString)),
         SLOT(forward(QString)), Qt::QueuedConnection);
     connect(logThread, SIGNAL(done(int)),
         SLOT(pipeClosed(int)), Qt::QueuedConnection);
     logThread->start();
+    return logThread;
 }

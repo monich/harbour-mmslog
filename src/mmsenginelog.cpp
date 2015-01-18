@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -40,8 +40,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-MMSEngineLog::MMSEngineLog(int aPipe, QObject* aParent) :
-    QThread(aParent), iPipe(aPipe)
+MMSEngineLog::MMSEngineLog(int aPipe) : iPipe(aPipe)
 {
 }
 
@@ -66,6 +65,6 @@ void MMSEngineLog::run()
         emit message(line);
     }
     delete decoder;
-    LOG("Receive thread" << iPipe << "exiting");
     emit done(iPipe);
+    LOG("Receive thread" << iPipe << "exiting");
 }

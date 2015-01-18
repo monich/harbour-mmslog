@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -40,7 +40,7 @@ class MMSEngineLog : public QThread
     Q_OBJECT
 
 public:
-    MMSEngineLog(int aPipe, QObject* aParent);
+    MMSEngineLog(int aPipe);
     virtual void run();
 
 Q_SIGNALS:

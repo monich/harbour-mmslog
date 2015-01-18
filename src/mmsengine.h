@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -33,7 +33,7 @@
 #ifndef MMSENGINE_H
 #define MMSENGINE_H
 
-#include <QObject>
+#include "mmsenginelog.h"
 
 class MMSEngine : public QObject
 {
@@ -45,9 +45,9 @@ public:
 
 private:
     void killEngine();
-    void startEngine();
-    void startLogThread(int aDescriptor);
     void engineDied();
+    MMSEngineLog* startEngine();
+    MMSEngineLog* startLogThread(int aDescriptor);
 
 Q_SIGNALS:
     void message(QString message, bool aMmsEngineLog);
@@ -58,6 +58,7 @@ private Q_SLOTS:
     void pipeClosed(int aPipe);
 
 private:
+    MMSEngineLog* iEngineLog;
     QString iTempDir;
     pid_t iPid;
     int iPipe;
