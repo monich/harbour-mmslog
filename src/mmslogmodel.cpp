@@ -213,9 +213,10 @@ void FsIoLogModel::clear()
 {
     iLogFile.flush();
     beginResetModel();
+    const int n = qMin(iLineChangedSignal.count(), iMessages.count());
     deleteAllMessages();
     // line0Changed() will be signalled by append("Log cleared")
-    for (int i=1; i<iLineChangedSignal.count(); i++) {
+    for (int i=1; i<n; i++) {
         (this->*iLineChangedSignal.at(i))(QString());
     }
     append("Log cleared");
