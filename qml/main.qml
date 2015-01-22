@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014 Jolla Ltd.
+  Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
   All rights reserved.
 
@@ -38,7 +38,7 @@ import "cover"
 ApplicationWindow
 {
     id: window
-    initialPage: Component { LogPage { } }
     allowedOrientations: Orientation.Portrait | Orientation.Landscape | Orientation.LandscapeInverted
-    cover: Qt.resolvedUrl("cover/CoverPage.qml")
+    initialPage: Component { LogPage { } }
+    cover: Component { CoverPage { } }
 }
