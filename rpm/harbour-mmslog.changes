@@ -1,4 +1,6 @@
-* Thu Dec 25 2014 Slava Monich <slava.monich@jolla.com> 1.0.1
+* Thu Jan 22 2015 Slava Monich <slava.monich@jolla.com> 1.0.1
+- Added NetworkRegistration information to the tarball
+- Limited number of lines in the log view
 - Russian translation
 
 * Wed Dec 24 2014 Slava Monich <slava.monich@jolla.com> 1.0.0
