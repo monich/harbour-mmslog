@@ -1,7 +1,9 @@
 TARGET = harbour-mmslog
 
-QT += dbus qml
+QT += dbus
 CONFIG += sailfishapp
+CONFIG += link_pkgconfig
+PKGCONFIG += mlite5 sailfishapp
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 CONFIG(debug, debug|release) {
