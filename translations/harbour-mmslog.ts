@@ -5,7 +5,7 @@
     <name>CoverPage</name>
     <message>
         <source>mmslog-cover-title</source>
-        <translation>MMS log</translation>
+        <translation>MMS</translation>
     </message>
 </context>
 <context>

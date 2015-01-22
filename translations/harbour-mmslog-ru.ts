@@ -5,7 +5,7 @@
     <name>CoverPage</name>
     <message>
         <source>mmslog-cover-title</source>
-        <translation>MMS лог</translation>
+        <translation>MMS</translation>
     </message>
 </context>
 <context>
@@ -16,11 +16,11 @@
     </message>
     <message>
         <source>mmslog-logpage-pm-clear-log</source>
-        <translation>Очистить лог</translation>
+        <translation>Очистить журнал</translation>
     </message>
     <message>
         <source>mmslog-logpage-title</source>
-        <translation>Отладочная информация</translation>
+        <translation>Журнал</translation>
     </message>
 </context>
 <context>
