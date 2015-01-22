@@ -160,6 +160,8 @@ int main(int argc, char *argv[])
         qPrintable(mmsLog->dirName() + "/SimManager.GetProperties.txt"));
     save_ofono_info("org.ofono.ConnectionManager.GetContexts",
         qPrintable(mmsLog->dirName() + "/ConnectionManager.GetContexts.txt"));
+    save_ofono_info("org.ofono.NetworkRegistration.GetProperties",
+        qPrintable(mmsLog->dirName() + "/NetworkRegistration.GetProperties.txt"));
 
     int ret = app->exec();
 
