@@ -36,6 +36,7 @@
 #include <QDateTime>
 
 #include <signal.h>
+#include <unistd.h>
 
 #define LOG_FILE                "mms-engine.log"
 #define DCONF_PATH              "/apps/harbour-mmslog/"
