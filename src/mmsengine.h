@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
-  All rights reserved.
 
   You may use this file under the terms of BSD license as follows:
 
@@ -34,6 +33,7 @@
 #define MMSENGINE_H
 
 #include "mmsenginelog.h"
+#include <QTimer>
 
 class MMSEngine : public QObject
 {
@@ -46,6 +46,7 @@ public:
 private:
     void killEngine();
     void engineDied();
+    void stopLogging();
     MMSEngineLog* startEngine();
     MMSEngineLog* startLogThread(int aDescriptor);
 
@@ -56,9 +57,11 @@ private Q_SLOTS:
     void forward(QString aMessage);
     void processDied(int aPid, int aStatus);
     void pipeClosed(int aPipe);
+    void restart();
 
 private:
     MMSEngineLog* iEngineLog;
+    QTimer* iRestartTimer;
     QString iTempDir;
     pid_t iPid;
     int iPipe;

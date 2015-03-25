@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
-  All rights reserved.
 
   You may use this file under the terms of BSD license as follows:
 
@@ -43,9 +42,12 @@
 #include <sys/prctl.h>
 
 #define MMS_ENGINE "/usr/sbin/mms-engine"
+#define MMS_ENGINE_RESTART_DELAY (1000)
 
 MMSEngine::MMSEngine(QString aTempDir, QObject* aParent) :
     QObject(aParent),
+    iEngineLog(NULL),
+    iRestartTimer(NULL),
     iTempDir(aTempDir),
     iPid(-1),
     iPipe(-1)
@@ -57,11 +59,23 @@ MMSEngine::MMSEngine(QString aTempDir, QObject* aParent) :
 MMSEngine::~MMSEngine()
 {
     LOG("terminating");
-    if (iPid > 0) kill(iPid, SIGTERM);
-    if (iPipe >= 0) close(iPipe);
+    stopLogging();
+}
+
+void MMSEngine::stopLogging()
+{
+    if (iPid > 0) {
+        kill(iPid, SIGTERM);
+        iPid = -1;
+    }
+    if (iPipe >= 0) {
+        close(iPipe);
+        iPipe = -1;
+    }
     if (iEngineLog) {
         iEngineLog->wait();
         delete iEngineLog;
+        iEngineLog = NULL;
     }
 }
 
@@ -147,6 +161,23 @@ void MMSEngine::pipeClosed(int aPipe)
 void MMSEngine::engineDied()
 {
     emit message("MMS engine died", false);
+    if (!iRestartTimer) {
+        iRestartTimer = new QTimer(this);
+        iRestartTimer->setSingleShot(true);
+        iRestartTimer->setInterval(MMS_ENGINE_RESTART_DELAY);
+        connect(iRestartTimer, SIGNAL(timeout()), SLOT(restart()));
+    }
+    iRestartTimer->start();
+}
+
+void MMSEngine::restart()
+{
+    if (iRestartTimer) {
+        delete iRestartTimer;
+        iRestartTimer = NULL;
+    }
+    stopLogging();
+    iEngineLog = startEngine();
 }
 
 void MMSEngine::forward(QString aMessage)
@@ -158,7 +189,6 @@ void MMSEngine::forward(QString aMessage)
 MMSEngineLog* MMSEngine::startLogThread(int aDescriptor)
 {
     MMSEngineLog* logThread = new MMSEngineLog(aDescriptor);
-    connect(logThread, SIGNAL(finished()), logThread, SLOT(deleteLater()));
     connect(logThread, SIGNAL(message(QString)),
         SLOT(forward(QString)), Qt::QueuedConnection);
     connect(logThread, SIGNAL(done(int)),
