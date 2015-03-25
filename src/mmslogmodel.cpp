@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2014-2015 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
-  All rights reserved.
 
   You may use this file under the terms of BSD license as follows:
 
@@ -233,7 +232,8 @@ void FsIoLogModel::append(QString aMessage, bool aMmsEngineLog)
     beginInsertRows(QModelIndex(), count+1, count+1);
     iMessages.append(new Entry(aMessage, aMmsEngineLog));
     endInsertRows();
-    emit dataChanged(createIndex(count, 0), createIndex(count, 1));
+    QModelIndex index(createIndex(count, 0));
+    emit dataChanged(index, index);
     const int n = qMin(iLineChangedSignal.count(), iMessages.count());
     for (int i=0; i<n; i++) {
         (this->*iLineChangedSignal.at(i))(line(i));
@@ -332,7 +332,7 @@ void FsIoLogModel::updateLogSizeLimit()
     }
     LOG("log size limit" << iLogSizeLimit);
     if (removeExtraLines(0)) {
-        const int count = iMessages.count();
-        emit dataChanged(createIndex(count, 0), createIndex(count, 1));
+        QModelIndex index(createIndex(iMessages.count(), 0));
+        emit dataChanged(index, index);
     }
 }
