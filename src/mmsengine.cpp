@@ -43,11 +43,13 @@
 
 #define MMS_ENGINE "/usr/sbin/mms-engine"
 #define MMS_ENGINE_RESTART_DELAY (1000)
+#define MMS_ENGINE_MAX_RESTARTS  (10)
 
 MMSEngine::MMSEngine(QString aTempDir, QObject* aParent) :
     QObject(aParent),
     iEngineLog(NULL),
     iRestartTimer(NULL),
+    iRestartCount(0),
     iTempDir(aTempDir),
     iPid(-1),
     iPipe(-1)
@@ -161,13 +163,16 @@ void MMSEngine::pipeClosed(int aPipe)
 void MMSEngine::engineDied()
 {
     emit message("MMS engine died", false);
-    if (!iRestartTimer) {
-        iRestartTimer = new QTimer(this);
-        iRestartTimer->setSingleShot(true);
-        iRestartTimer->setInterval(MMS_ENGINE_RESTART_DELAY);
-        connect(iRestartTimer, SIGNAL(timeout()), SLOT(restart()));
+    if (iRestartCount < MMS_ENGINE_MAX_RESTARTS) {
+        if (!iRestartTimer) {
+            iRestartTimer = new QTimer(this);
+            iRestartTimer->setSingleShot(true);
+            iRestartTimer->setInterval(MMS_ENGINE_RESTART_DELAY);
+            connect(iRestartTimer, SIGNAL(timeout()), SLOT(restart()));
+        }
+        iRestartTimer->start();
+        iRestartCount++;
     }
-    iRestartTimer->start();
 }
 
 void MMSEngine::restart()

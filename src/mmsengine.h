@@ -62,6 +62,7 @@ private Q_SLOTS:
 private:
     MMSEngineLog* iEngineLog;
     QTimer* iRestartTimer;
+    int iRestartCount;
     QString iTempDir;
     pid_t iPid;
     int iPipe;
