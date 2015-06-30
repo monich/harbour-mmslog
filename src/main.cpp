@@ -155,12 +155,14 @@ int main(int argc, char *argv[])
     view->setSource(SailfishApp::pathTo("qml/main.qml"));
     view->showFullScreen();
 
+    QString dir(mmsLog->dirName());
+    QFile::copy("/etc/sailfish-release", dir + "/sailfish-release");
     save_ofono_info("org.ofono.SimManager.GetProperties",
-        qPrintable(mmsLog->dirName() + "/SimManager.GetProperties.txt"));
+        qPrintable(dir + "/SimManager.GetProperties.txt"));
     save_ofono_info("org.ofono.ConnectionManager.GetContexts",
-        qPrintable(mmsLog->dirName() + "/ConnectionManager.GetContexts.txt"));
+        qPrintable(dir + "/ConnectionManager.GetContexts.txt"));
     save_ofono_info("org.ofono.NetworkRegistration.GetProperties",
-        qPrintable(mmsLog->dirName() + "/NetworkRegistration.GetProperties.txt"));
+        qPrintable(dir+ "/NetworkRegistration.GetProperties.txt"));
 
     int ret = app->exec();
 
