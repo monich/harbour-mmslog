@@ -5,7 +5,6 @@ Release:    1
 Group:      Applications/System
 License:    BSD
 URL:        http://github.com/monich/harbour-mmslog
-Vendor:     Slava Monich
 Source0:    %{name}-%{version}.tar.bz2
 
 Requires:   sailfishsilica-qt5 >= 0.10.9
