@@ -1,3 +1,6 @@
+* Tue Jun 30 2015 Slava Monich <slava.monich@jolla.com> 1.0.3
+- Added sailfish-release file to the tarball
+
 * Wed Mar 25 2015 Slava Monich <slava.monich@jolla.com> 1.0.2
 - Restart mms-engine if it fails to start
 
