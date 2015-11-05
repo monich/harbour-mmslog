@@ -33,6 +33,7 @@
 #include "mmsengine.h"
 #include "mmsdebug.h"
 #include "sigchildaction.h"
+#include "ofonoinfosaver.h"
 #include "transfermethodsmodel.h"
 
 #include <sailfishapp.h>
@@ -40,8 +41,6 @@
 #include <QtQuick>
 #include <QtQml>
 
-#include <fcntl.h>
-#include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
 
@@ -60,24 +59,6 @@ sigchild_action(
     waitpid(aInfo->si_pid, &status, 0);
     if (sigChildHandler) {
         sigChildHandler->notify(aInfo->si_pid, status);
-    }
-}
-
-static
-void
-save_ofono_info(
-    const char* aCall,
-    const char* aFile)
-{
-    int fd = open(aFile, O_WRONLY | O_CREAT, 0644);
-    if (fd >= 0) {
-        if (fork() == 0) {
-            dup2(fd, STDOUT_FILENO);
-            dup2(fd, STDERR_FILENO);
-            execlp("dbus-send", "dbus-send", "--system", "--print-reply",
-                "--dest=org.ofono", "/ril_0", aCall, NULL);
-        }
-        close(fd);
     }
 }
 
@@ -102,6 +83,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication* app = SailfishApp::application(argc, argv);
     TransferMethodInfo::registerType();
+    OfonoInfoSaver::registerType();
     register_types(PLUGIN_PREFIX, 1, 0);
 
     // Load translations
@@ -157,13 +139,7 @@ int main(int argc, char *argv[])
 
     QString dir(mmsLog->dirName());
     QFile::copy("/etc/sailfish-release", dir + "/sailfish-release");
-    save_ofono_info("org.ofono.SimManager.GetProperties",
-        qPrintable(dir + "/SimManager.GetProperties.txt"));
-    save_ofono_info("org.ofono.ConnectionManager.GetContexts",
-        qPrintable(dir + "/ConnectionManager.GetContexts.txt"));
-    save_ofono_info("org.ofono.NetworkRegistration.GetProperties",
-        qPrintable(dir+ "/NetworkRegistration.GetProperties.txt"));
-
+    new OfonoInfoSaver(dir, app);
     int ret = app->exec();
 
     sigChildHandler = NULL;
