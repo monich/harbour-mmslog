@@ -1,3 +1,6 @@
+* Tue Apr 12 2016 Slava Monich <slava.monich@jolla.com> 1.0.5
+- Changed vendor to meego to fix upgrade problems
+
 * Tue Apr 12 2016 Slava Monich <slava.monich@jolla.com> 1.0.4
 - Added support for multiple modems
 - Added hi-res icons

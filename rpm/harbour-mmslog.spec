@@ -1,9 +1,10 @@
 Name:       harbour-mmslog
 Summary:    MMS Logger
-Version:    1.0.4
+Version:    1.0.5
 Release:    1
 Group:      Applications/System
 License:    BSD
+Vendor:     meego
 URL:        http://github.com/monich/harbour-mmslog
 Source0:    %{name}-%{version}.tar.bz2
 
