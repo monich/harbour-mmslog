@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
+  Copyright (C) 2014-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -32,6 +32,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.mmslog 1.0
+import org.nemomobile.dbus 2.0
 
 SilicaListView {
     id: root
@@ -48,6 +49,14 @@ SilicaListView {
     QtObject {
         id: content
         property string type
+    }
+
+    DBusInterface {
+        id: settings
+
+        service: "com.jolla.settings"
+        path: "/com/jolla/settings/ui"
+        iface: "com.jolla.settings.ui"
     }
 
     model: TransferMethodsModel { id: transferMethodsModel }
@@ -92,6 +101,18 @@ SilicaListView {
                 emailTo: root.emailTo,
                 emailSubject: root.subject
             })
+        }
+    }
+
+    footer: BackgroundItem {
+        Label {
+            text: qsTr("mmslog-sharemethodlist-add-account")
+            x: Theme.horizontalPageMargin
+            anchors.verticalCenter: parent.verticalCenter
+            color: highlighted ? Theme.highlightColor : Theme.primaryColor
+        }
+        onClicked: {
+            settings.call("showAccounts", undefined)
         }
     }
 }

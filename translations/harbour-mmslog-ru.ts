@@ -24,6 +24,13 @@
     </message>
 </context>
 <context>
+    <name>ShareMethodList</name>
+    <message>
+        <source>mmslog-sharemethodlist-add-account</source>
+        <translation>Добавить учетную запись</translation>
+    </message>
+</context>
+<context>
     <name>SharePage</name>
     <message>
         <source>mmslog-sharepage-header</source>
