@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
+  Copyright (C) 2014-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -89,9 +89,11 @@ FsIoLogModel::Entry::Entry(QString aMessage, bool aFromMmsEngine) :
 
 FsIoLogModel::FsIoLogModel(QObject* aParent) :
     QAbstractListModel(aParent),
-    iTempDir("/tmp/mms_XXXXXX"),
-    iLogFile(iTempDir.path().append("/" LOG_FILE)),
     iArchiveType("application/x-gzip"),
+    iArchiveName(QString("mms") + QDateTime::currentDateTime().toString(Qt::ISODate).replace(":","")),
+    iTempDir("/tmp/mms_XXXXXX"),
+    iRootDir(iTempDir.path() + "/" + iArchiveName),
+    iLogFile(iRootDir + "/" LOG_FILE),
     iLogSizeLimitConf(new MGConfItem(DCONF_PATH DCONF_LOG_SIZE_LIMIT, this)),
     iPid(-1)
 {
@@ -111,6 +113,9 @@ FsIoLogModel::FsIoLogModel(QObject* aParent) :
     iLineChangedSignal.append(&FsIoLogModel::line9Changed);
     iTempDir.setAutoRemove(true);
     LOG("Temporary directory" << iTempDir.path());
+    if (!QDir(iRootDir).mkpath(iRootDir)) {
+        append(QString("Failed to create ").append(iRootDir));
+    }
     if (!iLogFile.open(QFile::Text | QFile::ReadWrite)) {
         append(QString("Failed to open ").append(iLogFile.fileName()));
     }
@@ -277,9 +282,7 @@ QString FsIoLogModel::archiveType() const
 
 void FsIoLogModel::pack()
 {
-    (iArchivePath = "/tmp/mms").
-        append(QDateTime::currentDateTime().toString(Qt::ISODate).replace(":","")).
-        append(".tar.gz");
+    (iArchivePath = "/tmp/").append(iArchiveName).append(".tar.gz");
     LOG("Creating" << iArchivePath);
     iLogFile.flush();
     if (iPid > 0) kill(iPid, SIGKILL);
@@ -290,7 +293,7 @@ void FsIoLogModel::pack()
     } else if (iPid == 0) {
         // Child
         execlp("tar", "tar", "-czf", qPrintable(iArchivePath), "-C",
-            qPrintable(iTempDir.path()), ".", NULL);
+            qPrintable(iTempDir.path()), qPrintable(iArchiveName), NULL);
     }
     archivePathChanged();
 }

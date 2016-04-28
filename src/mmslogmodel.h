@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
+  Copyright (C) 2014-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -60,7 +60,7 @@ public:
     explicit FsIoLogModel(QObject* aParent = NULL);
     ~FsIoLogModel();
 
-    QString dirName() { return iTempDir.path(); }
+    QString dirName() { return iRootDir; }
 
     virtual QHash<int,QByteArray> roleNames() const;
     virtual int rowCount(const QModelIndex& aParent) const;
@@ -114,10 +114,12 @@ private:
 private:
     QList<Entry*> iMessages;
     QList<LineChanged> iLineChangedSignal;
-    QTemporaryDir iTempDir;
-    QFile iLogFile;
     QString iArchivePath;
     QString iArchiveType;
+    QString iArchiveName;
+    QTemporaryDir iTempDir;
+    QString iRootDir;
+    QFile iLogFile;
     MGConfItem* iLogSizeLimitConf;
     int iLogSizeLimit;
     int iLogRemoveCount;
