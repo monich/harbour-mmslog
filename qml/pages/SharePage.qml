@@ -31,24 +31,57 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.nemomobile.notifications 1.0
 
 Page {
     id: page
     allowedOrientations: window.allowedOrientations
-    property bool _canShare: !FsIoLog.packing && !minStartupAnimationDelay.running
+    backNavigation: _canShare
+    property bool _canShare: !FsIoLog.packing && !FsIoLog.saving && !minWaitTimer.running
     property bool _portrait: page.orientation === Orientation.Portrait
     property real _fullHeight: _portrait ? window.height : window.width
 
     // The timer makes sure that animation is displayed for at least 1 second
     Timer {
-        id: minStartupAnimationDelay
+        id: minWaitTimer
         interval: 1000
         running: true
+    }
+
+    Notification {
+        id: notification
+    }
+
+    Connections {
+        target: FsIoLog
+        onSaveFinished: {
+            notification.close()
+            if (success) {
+                notification.previewBody = qsTr("mmslog-sharepage-save-ok").arg(FsIoLog.archiveFile)
+            } else {
+                notification.previewBody = qsTr("mmslog-sharepage-save-error").arg(FsIoLog.archiveFile)
+            }
+            notification.publish()
+        }
     }
 
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: parent.height
+
+        PullDownMenu {
+            visible: _canShare || active
+            MenuItem {
+                text: qsTr("mmslog-sharepage-pm-save-to-documents")
+                onClicked: FsIoLog.save()
+            }
+            onActiveChanged: {
+                if (!active && FsIoLog.saving) {
+                    // Copying hasn't finished by the time menu was closed
+                    minWaitTimer.start()
+                }
+            }
+        }
 
         PageHeader {
             id: header

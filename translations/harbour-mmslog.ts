@@ -44,5 +44,17 @@
         <source>mmslog-sharepage-please-wait</source>
         <translation>Please wait</translation>
     </message>
+    <message>
+        <source>mmslog-sharepage-pm-save-to-documents</source>
+        <translation>Save to documents</translation>
+    </message>
+    <message>
+        <source>mmslog-sharepage-save-ok</source>
+        <translation>Saved %1</translation>
+    </message>
+    <message>
+        <source>mmslog-sharepage-save-error</source>
+        <translation>Failed to save %1</translation>
+    </message>
 </context>
 </TS>

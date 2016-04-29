@@ -34,6 +34,7 @@
 
 #include <QAbstractListModel>
 #include <QTemporaryDir>
+#include <QThreadPool>
 #include <QFile>
 #include <MGConfItem>
 
@@ -41,10 +42,13 @@ class FsIoLogModel : public QAbstractListModel
 {
     Q_OBJECT
     class Entry;
+    class SaveTask;
     typedef void (FsIoLogModel::*LineChanged)(QString);
     Q_PROPERTY(bool packing READ packing NOTIFY packingChanged)
+    Q_PROPERTY(bool saving READ saving NOTIFY savingChanged)
     Q_PROPERTY(QString archivePath READ archivePath NOTIFY archivePathChanged)
-    Q_PROPERTY(QString archiveType READ archiveType NOTIFY archiveTypeChanged)
+    Q_PROPERTY(QString archiveFile READ archiveFile CONSTANT)
+    Q_PROPERTY(QString archiveType READ archiveType CONSTANT)
     Q_PROPERTY(QString line0 READ line0 NOTIFY line0Changed)
     Q_PROPERTY(QString line1 READ line1 NOTIFY line1Changed)
     Q_PROPERTY(QString line2 READ line2 NOTIFY line2Changed)
@@ -67,7 +71,9 @@ public:
     virtual QVariant data(const QModelIndex& aIndex, int aRole) const;
 
     bool packing() const;
+    bool saving() const;
     QString archivePath() const;
+    QString archiveFile() const;
     QString archiveType() const;
 
     QString line0() const;
@@ -85,11 +91,13 @@ public Q_SLOTS:
     void clear();
     void flush();
     void pack();
+    void save();
 
 Q_SIGNALS:
     void packingChanged();
+    void savingChanged();
+    void saveFinished(bool success);
     void archivePathChanged();
-    void archiveTypeChanged();
     void line0Changed(QString aValue);
     void line1Changed(QString aValue);
     void line2Changed(QString aValue);
@@ -105,6 +113,7 @@ private Q_SLOTS:
     void append(QString aMessage, bool aMmsEngineLog = false);
     void processDied(int aPid, int aStatus);
     void updateLogSizeLimit();
+    void onSaveTaskDone(bool aSuccess);
 
 private:
     QString line(int aIndex) const;
@@ -112,15 +121,18 @@ private:
     bool removeExtraLines(int aReserve);
 
 private:
+    QThreadPool* iThreadPool;
     QList<Entry*> iMessages;
     QList<LineChanged> iLineChangedSignal;
     QString iArchivePath;
     QString iArchiveType;
     QString iArchiveName;
+    QString iArchiveFile;
     QTemporaryDir iTempDir;
     QString iRootDir;
     QFile iLogFile;
     MGConfItem* iLogSizeLimitConf;
+    SaveTask* iSaveTask;
     int iLogSizeLimit;
     int iLogRemoveCount;
     int iPid;

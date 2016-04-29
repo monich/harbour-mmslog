@@ -33,6 +33,7 @@
 #include "mmsdebug.h"
 
 #include <QDateTime>
+#include <QRunnable>
 
 #include <signal.h>
 #include <unistd.h>
@@ -51,6 +52,10 @@ enum FsIoLogRole {
     TimeRole = Qt::UserRole,
     TextRole
 };
+
+// ==========================================================================
+// FsIoLogModel::Entry
+// ==========================================================================
 
 class FsIoLogModel::Entry {
 public:
@@ -87,16 +92,61 @@ FsIoLogModel::Entry::Entry(QString aMessage, bool aFromMmsEngine) :
     }
 }
 
+// ==========================================================================
+// FsIoLogModel::SaveTask
+// ==========================================================================
+
+class FsIoLogModel::SaveTask: public QObject, public QRunnable
+{
+    Q_OBJECT
+
+public:
+    SaveTask(QString aSrc, QString aDest, QObject* aParent = NULL) :
+        QObject(aParent), iSrc(aSrc), iDest(aDest) {
+        setAutoDelete(false);
+    }
+
+protected:
+    virtual void run();
+
+Q_SIGNALS:
+    void done(bool aSuccess);
+
+private:
+    QString iSrc;
+    QString iDest;
+};
+
+void FsIoLogModel::SaveTask::run()
+{
+    QFile::remove(iDest);
+    bool ok = QFile::copy(iSrc, iDest);
+    if (ok) {
+        LOG("Copied" << qPrintable(iSrc) << "->" << qPrintable(iDest));
+    } else {
+        LOG("Failed to copy" << qPrintable(iSrc) << "->" << qPrintable(iDest));
+    }
+    Q_EMIT done(ok);
+}
+
+// ==========================================================================
+// FsIoLogModel
+// ==========================================================================
+
 FsIoLogModel::FsIoLogModel(QObject* aParent) :
     QAbstractListModel(aParent),
+    iThreadPool(new QThreadPool(this)),
     iArchiveType("application/x-gzip"),
     iArchiveName(QString("mms") + QDateTime::currentDateTime().toString(Qt::ISODate).replace(":","")),
+    iArchiveFile(iArchiveName + ".tar.gz"),
     iTempDir("/tmp/mms_XXXXXX"),
     iRootDir(iTempDir.path() + "/" + iArchiveName),
     iLogFile(iRootDir + "/" LOG_FILE),
     iLogSizeLimitConf(new MGConfItem(DCONF_PATH DCONF_LOG_SIZE_LIMIT, this)),
+    iSaveTask(NULL),
     iPid(-1)
 {
+    iThreadPool->setMaxThreadCount(1);
     updateLogSizeLimit();
     connect(iLogSizeLimitConf,
         SIGNAL(valueChanged()),
@@ -123,6 +173,7 @@ FsIoLogModel::FsIoLogModel(QObject* aParent) :
 
 FsIoLogModel::~FsIoLogModel()
 {
+    iThreadPool->waitForDone();
     deleteAllMessages();
     if (iPid > 0) kill(iPid, SIGKILL);
     if (!iArchivePath.isEmpty()) unlink(qPrintable(iArchivePath));
@@ -270,6 +321,16 @@ bool FsIoLogModel::packing() const
     return iPid > 0;
 }
 
+bool FsIoLogModel::saving() const
+{
+    return iSaveTask != NULL;
+}
+
+QString FsIoLogModel::archiveFile() const
+{
+    return iArchiveFile;
+}
+
 QString FsIoLogModel::archivePath() const
 {
     return iArchivePath;
@@ -282,7 +343,7 @@ QString FsIoLogModel::archiveType() const
 
 void FsIoLogModel::pack()
 {
-    (iArchivePath = "/tmp/").append(iArchiveName).append(".tar.gz");
+    (iArchivePath = "/tmp/").append(iArchiveFile);
     LOG("Creating" << iArchivePath);
     iLogFile.flush();
     if (iPid > 0) kill(iPid, SIGKILL);
@@ -339,3 +400,31 @@ void FsIoLogModel::updateLogSizeLimit()
         emit dataChanged(index, index);
     }
 }
+
+void FsIoLogModel::save()
+{
+    LOG(iArchivePath);
+    if (!iArchivePath.isEmpty() && !iSaveTask) {
+        QString fileName = QFileInfo(iArchivePath).fileName();
+        QString destPath = QDir::homePath() + "/Documents/" + fileName;
+        iSaveTask = new SaveTask(iArchivePath, destPath, this);
+        connect(iSaveTask, SIGNAL(done(bool)), SLOT(onSaveTaskDone(bool)),
+            Qt::QueuedConnection);
+        LOG(qPrintable(iArchivePath) << "->" << qPrintable(destPath));
+        iThreadPool->start(iSaveTask);
+        Q_EMIT savingChanged();
+    }
+}
+
+void FsIoLogModel::onSaveTaskDone(bool aSuccess)
+{
+    LOG((aSuccess ? "OK" : "ERROR"));
+    if (iSaveTask) {
+        delete iSaveTask;
+        iSaveTask = NULL;
+        Q_EMIT saveFinished(aSuccess);
+        Q_EMIT savingChanged();
+    }
+}
+
+#include "mmslogmodel.moc"
