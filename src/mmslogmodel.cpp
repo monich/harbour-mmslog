@@ -12,9 +12,9 @@
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
+    * Neither the name of Jolla Ltd nor the names of its contributors may
+      be used to endorse or promote products derived from this software
+      without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -151,16 +151,6 @@ FsIoLogModel::FsIoLogModel(QObject* aParent) :
     connect(iLogSizeLimitConf,
         SIGNAL(valueChanged()),
         SLOT(updateLogSizeLimit()));
-    iLineChangedSignal.append(&FsIoLogModel::line0Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line1Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line2Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line3Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line4Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line5Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line6Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line7Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line8Changed);
-    iLineChangedSignal.append(&FsIoLogModel::line9Changed);
     iTempDir.setAutoRemove(true);
     LOG("Temporary directory" << iTempDir.path());
     if (!QDir(iRootDir).mkpath(iRootDir)) {
@@ -232,35 +222,6 @@ QVariant FsIoLogModel::data(const QModelIndex& index, int role) const
     return value;
 }
 
-QString FsIoLogModel::line0() const { return line(0); }
-QString FsIoLogModel::line1() const { return line(1); }
-QString FsIoLogModel::line2() const { return line(2); }
-QString FsIoLogModel::line3() const { return line(3); }
-QString FsIoLogModel::line4() const { return line(4); }
-QString FsIoLogModel::line5() const { return line(5); }
-QString FsIoLogModel::line6() const { return line(6); }
-QString FsIoLogModel::line7() const { return line(7); }
-QString FsIoLogModel::line8() const { return line(8); }
-QString FsIoLogModel::line9() const { return line(9); }
-QString FsIoLogModel::line(int aIndex) const
-{
-    if (aIndex >= 0) {
-        const int count = iMessages.count();
-        if (aIndex < count) {
-            QString text = iMessages.at(count-aIndex-1)->iText;
-            if (text.startsWith("[mms-")) {
-                if (text.startsWith("[mms-task-")) {
-                    text.remove(1, 9);
-                } else {
-                    text.remove(1, 4);
-                }
-            }
-            return text;
-        }
-    }
-    return QString();
-}
-
 bool FsIoLogModel::removeExtraLines(int aReserve)
 {
     const int count = iMessages.count();
@@ -290,22 +251,13 @@ void FsIoLogModel::append(QString aMessage, bool aMmsEngineLog)
     endInsertRows();
     QModelIndex index(createIndex(count, 0));
     emit dataChanged(index, index);
-    const int n = qMin(iLineChangedSignal.count(), iMessages.count());
-    for (int i=0; i<n; i++) {
-        (this->*iLineChangedSignal.at(i))(line(i));
-    }
 }
 
 void FsIoLogModel::clear()
 {
     iLogFile.flush();
     beginResetModel();
-    const int n = qMin(iLineChangedSignal.count(), iMessages.count());
     deleteAllMessages();
-    // line0Changed() will be signalled by append("Log cleared")
-    for (int i=1; i<n; i++) {
-        (this->*iLineChangedSignal.at(i))(QString());
-    }
     append("Log cleared");
     endResetModel();
 }

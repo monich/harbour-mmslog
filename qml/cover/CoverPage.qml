@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
+  Copyright (C) 2014-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -7,14 +7,15 @@
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
+    * Neither the name of Jolla Ltd nor the names of its contributors may
+      be used to endorse or promote products derived from this software
+      without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -34,37 +35,66 @@ import Sailfish.Silica 1.0
 
 CoverBackground {
     id: cover
+    allowResize: true
+
     Label {
         id: title
         horizontalAlignment: Text.AlignHCenter
         text: qsTr("mmslog-cover-title")
+        font.bold: true
         anchors {
             top: parent.top
             left: parent.left
             right: parent.right
-            topMargin: Theme.paddingLarge
+            topMargin: Theme.paddingMedium
             leftMargin: Theme.paddingMedium
             rightMargin: Theme.paddingMedium
         }
     }
-    Column {
+    ListView {
+        id: view
         anchors {
             top: title.bottom
             left: parent.left
             right: parent.right
+            bottom: parent.bottom
             leftMargin: Theme.paddingMedium
             rightMargin: Theme.paddingSmall
-            topMargin: Theme.paddingSmall
+            bottomMargin: Theme.itemSizeSmall
         }
-        CoverLogLine { text: FsIoLog.line7; opacity: 0.3 }
-        CoverLogLine { text: FsIoLog.line6; opacity: 0.6 }
-        CoverLogLine { text: FsIoLog.line5 }
-        CoverLogLine { text: FsIoLog.line4 }
-        CoverLogLine { text: FsIoLog.line3 }
-        CoverLogLine { text: FsIoLog.line2 }
-        CoverLogLine { text: FsIoLog.line1 }
-        CoverLogLine { text: FsIoLog.line0 }
+        model: FsIoLog
+        onCountChanged: positioner.start()
+        onHeightChanged: scrollToEnd()
+        delegate: Label {
+            text: plaintext.replace(/^\[.*\] /,"")
+            width: parent.width
+            color: Theme.secondaryColor
+            truncationMode: TruncationMode.Fade
+            font.pixelSize: Theme.fontSizeTiny
+        }
+        function scrollToEnd() {
+            if (count > 1) {
+                // FsIoLog model has one extra item at the end
+                positionViewAtIndex(count - 2, ListView.End)
+            }
+        }
+        Timer {
+            // positionViewAtXxx() doesn't work directly from onCountChanged
+            id: positioner
+            interval: 0
+            onTriggered: view.scrollToEnd()
+        }
     }
+
+    OpacityRampEffect {
+        enabled: !view.atYBeginning
+        sourceItem: view
+        parent: cover
+        direction: OpacityRamp.BottomToTop
+        slope: 3
+        offset: 1 - 1 / slope
+    }
+
     CoverActionList {
         CoverAction {
             iconSource: "image://theme/icon-cover-cancel"
