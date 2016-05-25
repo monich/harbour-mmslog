@@ -66,7 +66,7 @@ CoverBackground {
         onCountChanged: positioner.start()
         onHeightChanged: scrollToEnd()
         delegate: Label {
-            text: plaintext.replace(/^\[.*\] /,"")
+            text: plaintext.replace(/^[^\]]+\] */,"")
             width: parent.width
             color: Theme.secondaryColor
             truncationMode: TruncationMode.Fade
