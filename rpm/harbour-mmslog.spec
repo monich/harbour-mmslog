@@ -1,6 +1,6 @@
 Name:       harbour-mmslog
 Summary:    MMS Logger
-Version:    1.0.6
+Version:    1.0.7
 Release:    1
 Group:      Applications/System
 License:    BSD

@@ -1,3 +1,7 @@
+* Wed Jul 20 2016 Slava Monich <slava.monich@jolla.com> 1.0.7
+- Added storage information to the tarball
+- Fixed a few minor UI issues
+
 * Sat Apr 30 2016 Slava Monich <slava.monich@jolla.com> 1.0.6
 - Subdirectory inside the tarball
 - Added 'Add account' button to the list of sharing methods
