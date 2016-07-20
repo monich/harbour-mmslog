@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
+  Copyright (C) 2014-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -12,9 +12,9 @@
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
+    * Neither the name of Jolla Ltd nor the names of its contributors may
+      be used to endorse or promote products derived from this software
+      without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -41,6 +41,8 @@
 #include <QtQuick>
 #include <QtQml>
 
+#include <fcntl.h>
+#include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
 
@@ -76,6 +78,21 @@ static bool load_transferengine_translations(QTranslator* tr, QLocale locale)
     } else {
         LOG("Failed to load transferengine plugin translator for" << locale);
         return false;
+    }
+}
+
+static void save_disk_usage(QString dir)
+{
+    QString file(dir);
+    file += "/storage";
+    int fd = open(qPrintable(file), O_WRONLY | O_CREAT, 0644);
+    if (fd >= 0) {
+        if (fork() == 0) {
+            dup2(fd, STDOUT_FILENO);
+            dup2(fd, STDERR_FILENO);
+            execlp("df", "-k", "/tmp", qPrintable(QDir::homePath()), NULL);
+        }
+        close(fd);
     }
 }
 
@@ -138,6 +155,7 @@ int main(int argc, char *argv[])
     view->showFullScreen();
 
     QString dir(mmsLog->dirName());
+    save_disk_usage(dir);
     QFile::copy("/etc/sailfish-release", dir + "/sailfish-release");
     new OfonoInfoSaver(dir, app);
     int ret = app->exec();
