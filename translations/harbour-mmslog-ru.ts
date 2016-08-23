@@ -2,6 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1">
 <context>
+    <name></name>
     <message id="mmslog-cover-title">
         <source>MMS</source>
         <translation>MMS</translation>
@@ -45,6 +46,22 @@
     <message id="mmslog-sharepage-save-error">
         <source>Failed to save %1</source>
         <translation>Не получилось сохранить %1</translation>
+    </message>
+    <message id="mmslog-settings-page-header">
+        <source>MMS Logger</source>
+        <translation>MMS Регистратор</translation>
+    </message>
+    <message id="mmslog-settings-logsizelimit">
+        <source>Screen buffer size</source>
+        <translation>Количество строк на экране</translation>
+    </message>
+    <message id="mmslog-settings-logsizelimit-description">
+        <source>Don&apos;t worry, everything will be written to the log file regardless of the screen buffer size.</source>
+        <translation>Не волнуйтесь, в любом случае всё будет записано в файл ― даже то, что пропало с экрана.</translation>
+    </message>
+    <message id="mmslog-settings-logsizelimit-unlimited">
+        <source>Unlimited</source>
+        <translation>Неограниченное</translation>
     </message>
 </context>
 </TS>

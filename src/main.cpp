@@ -106,8 +106,13 @@ int main(int argc, char *argv[])
     // Load translations
     QLocale locale;
     QTranslator* translator = new QTranslator(app);
+#ifdef OPENREPOS
+    QString transDir("/usr/share/translations");
+    QString transFile("openrepos-mmslog");
+#else
     QString transDir = SailfishApp::pathTo("translations").toLocalFile();
     QString transFile("harbour-mmslog");
+#endif
     if (translator->load(locale, transFile, "-", transDir) ||
         translator->load(transFile, transDir)) {
         app->installTranslator(translator);
@@ -127,7 +132,7 @@ int main(int argc, char *argv[])
     sigChildHandler = SigChildAction::create(app);
     if (sigChildHandler) {
         struct sigaction act;
-        memset (&act, '\0', sizeof(act));
+        memset(&act, 0, sizeof(act));
         act.sa_sigaction = &sigchild_action;
         act.sa_flags = SA_SIGINFO;
         sigaction(SIGCHLD, &act, NULL);

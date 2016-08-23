@@ -1,8 +1,20 @@
-TARGET = harbour-mmslog
+openrepos {
+    PREFIX = openrepos
+    DEFINES += OPENREPOS
+} else {
+    PREFIX = harbour
+}
 
+app_settings {
+    # This path is hardcoded in jolla-settings
+    TRANSLATIONS_PATH = /usr/share/translations
+} else {
+    TRANSLATIONS_PATH = /usr/share/$${PREFIX}-mmslog/translations
+}
+
+TARGET = $${PREFIX}-mmslog
 QT += dbus
-CONFIG += sailfishapp
-CONFIG += link_pkgconfig
+CONFIG += sailfishapp link_pkgconfig
 PKGCONFIG += mlite5 sailfishapp
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
@@ -39,30 +51,46 @@ OTHER_FILES += \
     qml/main.qml \
     qml/cover/*.qml \
     qml/pages/*.qml \
-    rpm/harbour-mmslog.spec \
-    rpm/harbour-mmslog.changes \
+    settings/*.qml \
+    settings/harbour-mmslog.json \
     icons/*.svg \
     src/*.xml \
-    translations/*.ts
+    translations/*.ts \
+    rpm/*.spec \
+    rpm/harbour-mmslog.changes
 
 # Icons
-TARGET_ICON_ROOT = /usr/share/icons/hicolor
+ICON_SIZES = 86 108 128 256
+for(s, ICON_SIZES) {
+    icon_target = icon$${s}
+    icon_dir = icons/$${s}x$${s}
+    $${icon_target}.files = $${icon_dir}/$${TARGET}.png
+    $${icon_target}.path = /usr/share/icons/hicolor/$${s}x$${s}/apps
+    equals(PREFIX, "openrepos") {
+        $${icon_target}.extra = cp $${icon_dir}/harbour-mmslog.png $$eval($${icon_target}.files)
+        $${icon_target}.CONFIG += no_check_exist
+    }
+    INSTALLS += $${icon_target}
+}
 
-icon86.files = icons/86x86/$${TARGET}.png
-icon86.path = $$TARGET_ICON_ROOT/86x86/apps
-INSTALLS += icon86
+# Settings
+app_settings {
+    settings_json.files = settings/$${TARGET}.json
+    settings_json.path = /usr/share/jolla-settings/entries/
+    equals(PREFIX, "openrepos") {
+        settings_json.extra = sed s/harbour/openrepos/g settings/harbour-mmslog.json > $$eval(settings_json.files)
+        settings_json.CONFIG += no_check_exist
+    }
+    settings_qml.files = settings/*.qml
+    settings_qml.path = /usr/share/$${TARGET}/settings/
+    INSTALLS += settings_qml settings_json
+}
 
-icon108.files = icons/108x108/$${TARGET}.png
-icon108.path = $$TARGET_ICON_ROOT/108x108/apps
-INSTALLS += icon108
-
-icon128.files = icons/128x128/$${TARGET}.png
-icon128.path = $$TARGET_ICON_ROOT/128x128/apps
-INSTALLS += icon128
-
-icon256.files = icons/256x256/$${TARGET}.png
-icon256.path = $$TARGET_ICON_ROOT/256x256/apps
-INSTALLS += icon256
+# Desktop file
+equals(PREFIX, "openrepos") {
+    desktop.extra = sed s/harbour/openrepos/g harbour-mmslog.desktop > $${TARGET}.desktop
+    desktop.CONFIG += no_check_exist
+}
 
 # D-Bus interfaces
 DBUS_INTERFACES += transferengine
@@ -75,9 +103,34 @@ ofonomanager.files = src/org.ofono.Manager.xml
 ofonomanager.header_flags = -N -c OrgOfonoManager -i ofonodbustypes.h
 ofonomanager.source_flags = -N -c OrgOfonoManager
 
-# to disable building translations every time, comment out the
-# following CONFIG line
-CONFIG += sailfishapp_i18n sailfishapp_i18n_idbased
-TRANSLATIONS += \
-    translations/harbour-mmslog.ts \
-    translations/harbour-mmslog-ru.ts
+# Translations
+TRANSLATION_SOURCES = \
+  $${_PRO_FILE_PWD_}/qml \
+  $${_PRO_FILE_PWD_}/settings
+
+TRANSLATION_FILES = mmslog mmslog-ru
+
+for(t, TRANSLATION_FILES) {
+    suffix = $$replace(t,-,_)
+    in = $${_PRO_FILE_PWD_}/translations/harbour-$${t}
+    out = $${OUT_PWD}/translations/$${PREFIX}-$${t}
+
+    lupdate_target = lupdate_$$suffix
+    lrelease_target = lrelease_$$suffix
+
+    $${lupdate_target}.commands = lupdate -noobsolete $${TRANSLATION_SOURCES} -ts \"$${in}.ts\" && \
+        mkdir -p \"$${OUT_PWD}/translations\" &&  [ \"$${in}.ts\" != \"$${out}.ts\" ] && \
+        cp -af \"$${in}.ts\" \"$${out}.ts\" || :
+
+    $${lrelease_target}.target = \"$${out}.qm\"
+    $${lrelease_target}.depends = $${lupdate_target}
+    $${lrelease_target}.commands = lrelease -idbased \"$${out}.ts\"
+
+    QMAKE_EXTRA_TARGETS += $${lrelease_target} $${lupdate_target}
+    PRE_TARGETDEPS += \"$${out}.qm\"
+    qm.files += \"$${out}.qm\"
+}
+
+qm.path = $$TRANSLATIONS_PATH
+qm.CONFIG += no_check_exist
+INSTALLS += qm
