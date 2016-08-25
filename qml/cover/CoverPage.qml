@@ -40,7 +40,8 @@ CoverBackground {
     Label {
         id: title
         horizontalAlignment: Text.AlignHCenter
-        text: qsTr("mmslog-cover-title")
+        //% "MMS"
+        text: qsTrId("mmslog-cover-title")
         font.bold: true
         anchors {
             top: parent.top

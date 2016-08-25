@@ -106,7 +106,8 @@ SilicaListView {
 
     footer: BackgroundItem {
         Label {
-            text: qsTr("mmslog-sharemethodlist-add-account")
+            //% "Add account"
+            text: qsTrId("mmslog-sharemethodlist-add-account")
             x: Theme.horizontalPageMargin
             anchors.verticalCenter: parent.verticalCenter
             color: highlighted ? Theme.highlightColor : Theme.primaryColor

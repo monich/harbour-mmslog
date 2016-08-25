@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
+  Copyright (C) 2014-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -57,9 +57,11 @@ Page {
         onSaveFinished: {
             notification.close()
             if (success) {
-                notification.previewBody = qsTr("mmslog-sharepage-save-ok").arg(FsIoLog.archiveFile)
+                //% "Saved %1"
+                notification.previewBody = qsTrId("mmslog-sharepage-save-ok").arg(FsIoLog.archiveFile)
             } else {
-                notification.previewBody = qsTr("mmslog-sharepage-save-error").arg(FsIoLog.archiveFile)
+                //% "Failed to save %1"
+                notification.previewBody = qsTrId("mmslog-sharepage-save-error").arg(FsIoLog.archiveFile)
             }
             notification.publish()
         }
@@ -72,7 +74,8 @@ Page {
         PullDownMenu {
             visible: _canShare || active
             MenuItem {
-                text: qsTr("mmslog-sharepage-pm-save-to-documents")
+                //% "Save to documents"
+                text: qsTrId("mmslog-sharepage-pm-save-to-documents")
                 onClicked: FsIoLog.save()
             }
             onActiveChanged: {
@@ -85,7 +88,8 @@ Page {
 
         PageHeader {
             id: header
-            title: qsTr("mmslog-sharepage-header")
+            //% "Pack and send"
+            title: qsTrId("mmslog-sharepage-header")
         }
 
         ShareMethodList {
@@ -122,7 +126,8 @@ Page {
             font.pixelSize: Theme.fontSizeExtraSmall
             verticalAlignment: Text.AlignTop
             color: Theme.secondaryColor
-            text: qsTr("mmslog-sharepage-warning")
+            //% "Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone."
+            text: qsTrId("mmslog-sharepage-warning")
         }
     }
 
@@ -140,7 +145,8 @@ Page {
         Label {
             anchors.horizontalCenter: busy.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
-            text: qsTr("mmslog-sharepage-please-wait")
+            //% "Please wait"
+            text: qsTrId("mmslog-sharepage-please-wait")
         }
     }
 }

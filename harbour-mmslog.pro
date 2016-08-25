@@ -77,7 +77,7 @@ ofonomanager.source_flags = -N -c OrgOfonoManager
 
 # to disable building translations every time, comment out the
 # following CONFIG line
-CONFIG += sailfishapp_i18n
+CONFIG += sailfishapp_i18n sailfishapp_i18n_idbased
 TRANSLATIONS += \
     translations/harbour-mmslog.ts \
     translations/harbour-mmslog-ru.ts
