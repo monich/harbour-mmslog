@@ -56,8 +56,7 @@ OTHER_FILES += \
     icons/*.svg \
     src/*.xml \
     translations/*.ts \
-    rpm/*.spec \
-    rpm/harbour-mmslog.changes
+    rpm/*.spec
 
 # Icons
 ICON_SIZES = 86 108 128 256

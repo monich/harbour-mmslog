@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.7
+Version:    1.0.8
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -50,3 +50,37 @@ desktop-file-install --delete-original \
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/translations/%{name}*.qm
 %{_datadir}/jolla-settings/entries/%{name}.json
+
+%changelog
+* Mon Sep 06 2016 Slava Monich <slava.monich@jolla.com> 1.0.8
+- Added app settings and build for openrepos
+
+* Wed Jul 20 2016 Slava Monich <slava.monich@jolla.com> 1.0.7
+- Added storage information to the tarball
+- Fixed a few minor UI issues
+
+* Sat Apr 30 2016 Slava Monich <slava.monich@jolla.com> 1.0.6
+- Subdirectory inside the tarball
+- Added 'Add account' button to the list of sharing methods
+- Added 'Save to documents' function
+
+* Tue Apr 12 2016 Slava Monich <slava.monich@jolla.com> 1.0.5
+- Changed vendor to meego to fix upgrade problems
+
+* Tue Apr 12 2016 Slava Monich <slava.monich@jolla.com> 1.0.4
+- Added support for multiple modems
+- Added hi-res icons
+
+* Tue Jun 30 2015 Slava Monich <slava.monich@jolla.com> 1.0.3
+- Added sailfish-release file to the tarball
+
+* Wed Mar 25 2015 Slava Monich <slava.monich@jolla.com> 1.0.2
+- Restart mms-engine if it fails to start
+
+* Thu Jan 22 2015 Slava Monich <slava.monich@jolla.com> 1.0.1
+- Added NetworkRegistration information to the tarball
+- Limited number of lines in the log view
+- Russian translation
+
+* Wed Dec 24 2014 Slava Monich <slava.monich@jolla.com> 1.0.0
+- Initial version
