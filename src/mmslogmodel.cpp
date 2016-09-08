@@ -31,6 +31,7 @@
 
 #include "mmslogmodel.h"
 #include "mmsdebug.h"
+#include "appsettings.h"
 
 #include <QDateTime>
 #include <QRunnable>
@@ -39,10 +40,7 @@
 #include <unistd.h>
 
 #define LOG_FILE                "mms-engine.log"
-#define DCONF_PATH              "/apps/harbour-mmslog/"
-#define DCONF_LOG_SIZE_LIMIT    "logSizeLimit"
 
-#define LOG_SIZE_LIMIT_DEFAULT  (1000)
 #define LOG_SIZE_LIMIT_MIN      (100)
 #define LOG_SIZE_LIMIT_NONE     (0)
 #define LOG_REMOVE_MAX          (20)
@@ -133,8 +131,9 @@ void FsIoLogModel::SaveTask::run()
 // FsIoLogModel
 // ==========================================================================
 
-FsIoLogModel::FsIoLogModel(QObject* aParent) :
+FsIoLogModel::FsIoLogModel(AppSettings* aSettings, QObject* aParent) :
     QAbstractListModel(aParent),
+    iSettings(aSettings),
     iThreadPool(new QThreadPool(this)),
     iArchiveType("application/x-gzip"),
     iArchiveName(QString("mms") + QDateTime::currentDateTime().toString(Qt::ISODate).replace(":","")),
@@ -142,15 +141,12 @@ FsIoLogModel::FsIoLogModel(QObject* aParent) :
     iTempDir("/tmp/mms_XXXXXX"),
     iRootDir(iTempDir.path() + "/" + iArchiveName),
     iLogFile(iRootDir + "/" LOG_FILE),
-    iLogSizeLimitConf(new MGConfItem(DCONF_PATH DCONF_LOG_SIZE_LIMIT, this)),
     iSaveTask(NULL),
     iPid(-1)
 {
     iThreadPool->setMaxThreadCount(1);
     updateLogSizeLimit();
-    connect(iLogSizeLimitConf,
-        SIGNAL(valueChanged()),
-        SLOT(updateLogSizeLimit()));
+    connect(iSettings, SIGNAL(logSizeLimitChanged()), SLOT(updateLogSizeLimit()));
     iTempDir.setAutoRemove(true);
     LOG("Temporary directory" << iTempDir.path());
     if (!QDir(iRootDir).mkpath(iRootDir)) {
@@ -322,28 +318,22 @@ void FsIoLogModel::processDied(int aPid, int aStatus)
 
 void FsIoLogModel::updateLogSizeLimit()
 {
-    iLogSizeLimit = LOG_SIZE_LIMIT_DEFAULT;
+    iLogSizeLimit = AppSettings::DEFAULT_LOG_SIZE_LIMIT;
     iLogRemoveCount = LOG_REMOVE_DEFAULT;
-    QVariant value = iLogSizeLimitConf->value();
-    if (value.isValid()) {
-        bool ok = false;
-        int ival = value.toInt(&ok);
-        if (ok) {
-            if (ival <= 0) {
-                iLogSizeLimit = LOG_SIZE_LIMIT_NONE;
-            } else if (ival < LOG_SIZE_LIMIT_MIN) {
-                iLogSizeLimit = LOG_SIZE_LIMIT_MIN;
-            } else {
-                iLogSizeLimit = ival;
-            }
-            if (iLogSizeLimit > 0) {
-                iLogRemoveCount = iLogSizeLimit/50;
-                if (iLogRemoveCount < 1) {
-                    iLogRemoveCount = 1;
-                } else if (iLogRemoveCount > LOG_REMOVE_MAX) {
-                    iLogRemoveCount = LOG_REMOVE_MAX;
-                }
-            }
+    const int ival = iSettings->logSizeLimit();
+    if (ival <= 0) {
+        iLogSizeLimit = LOG_SIZE_LIMIT_NONE;
+    } else if (ival < LOG_SIZE_LIMIT_MIN) {
+        iLogSizeLimit = LOG_SIZE_LIMIT_MIN;
+    } else {
+        iLogSizeLimit = ival;
+    }
+    if (iLogSizeLimit > 0) {
+        iLogRemoveCount = iLogSizeLimit/50;
+        if (iLogRemoveCount < 1) {
+            iLogRemoveCount = 1;
+        } else if (iLogRemoveCount > LOG_REMOVE_MAX) {
+            iLogRemoveCount = LOG_REMOVE_MAX;
         }
     }
     LOG("log size limit" << iLogSizeLimit);

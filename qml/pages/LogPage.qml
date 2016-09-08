@@ -84,6 +84,9 @@ Page {
             model: FsIoLog
             anchors.fill: parent
 
+            readonly property int rawTextSize: Theme.fontSizeTiny + AppSettings.fontSizeAdjustment
+            readonly property int textSize: Math.min(Math.max(Theme.fontSizeTiny, rawTextSize), Theme.fontSizeHuge)
+
             header: PageHeader {
                 //% "MMS engine log"
                 title: qsTrId("mmslog-logpage-title")
@@ -94,7 +97,7 @@ Page {
                 Label {
                     id: timeLabel
                     text: timestamp
-                    font.pixelSize: Theme.fontSizeTiny
+                    font.pixelSize: view.textSize
                     anchors {
                         top: parent.top
                         left: parent.left
@@ -105,7 +108,7 @@ Page {
                 Label {
                     id: textLabel
                     text: plaintext
-                    font.pixelSize: Theme.fontSizeTiny
+                    font.pixelSize: view.textSize
                     wrapMode: Text.WordWrap
                     anchors {
                         top: parent.top

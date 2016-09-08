@@ -34,6 +34,7 @@ import Sailfish.Silica 1.0
 import org.nemomobile.configuration 1.0
 
 Page {
+    readonly property string rootPath: "/apps/harbour-mmslog/"
     SilicaFlickable {
         anchors.fill: parent
         contentHeight: content.height
@@ -94,9 +95,29 @@ Page {
                 }
                 ConfigurationValue {
                     id: logSizeLimit
-                    key: "/apps/harbour-mmslog/logSizeLimit"
+                    key: rootPath + "logSizeLimit"
                     onValueChanged: logSizeLimitComboBox.updateSelection(value)
                     defaultValue: 1000
+                }
+            }
+
+            Slider {
+                id: fontSizeSlider
+                width: parent.width
+                minimumValue: Theme.fontSizeTiny
+                maximumValue: Theme.fontSizeLarge
+                stepSize: 1
+                //% "Font size"
+                label: qsTrId("mmslog-settings-fontsize-label")
+                valueText: minimumValue + sliderValue
+                onSliderValueChanged: fontSizeAdjustment.value = sliderValue - minimumValue
+                Component.onCompleted: value = minimumValue + fontSizeAdjustment.value
+
+                ConfigurationValue {
+                    id: fontSizeAdjustment
+                    key: rootPath + "fontSizeAdjustment"
+                    onValueChanged: fontSizeSlider.value = fontSizeSlider.minimumValue + value
+                    defaultValue: 0
                 }
             }
         }

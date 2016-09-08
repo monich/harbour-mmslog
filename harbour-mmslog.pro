@@ -25,6 +25,7 @@ CONFIG(debug, debug|release) {
 INCLUDEPATH += src
 
 HEADERS += \
+    src/appsettings.h \
     src/mmsengine.h \
     src/mmsenginelog.h \
     src/mmsdebug.h \
@@ -36,6 +37,7 @@ HEADERS += \
     src/transfermethodsmodel.h
 
 SOURCES += \
+    src/appsettings.cpp \
     src/main.cpp \
     src/mmsengine.cpp \
     src/mmsenginelog.cpp \

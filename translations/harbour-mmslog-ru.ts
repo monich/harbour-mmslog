@@ -63,5 +63,9 @@
         <source>Unlimited</source>
         <translation>Неограниченное</translation>
     </message>
+    <message id="mmslog-settings-fontsize-label">
+        <source>Font size</source>
+        <translation>Размер шрифта</translation>
+    </message>
 </context>
 </TS>

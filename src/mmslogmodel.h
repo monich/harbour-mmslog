@@ -36,8 +36,8 @@
 #include <QTemporaryDir>
 #include <QThreadPool>
 #include <QFile>
-#include <MGConfItem>
 
+class AppSettings;
 class FsIoLogModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -50,7 +50,7 @@ class FsIoLogModel : public QAbstractListModel
     Q_PROPERTY(QString archiveType READ archiveType CONSTANT)
 
 public:
-    explicit FsIoLogModel(QObject* aParent = NULL);
+    explicit FsIoLogModel(AppSettings* aSettings, QObject* aParent = NULL);
     ~FsIoLogModel();
 
     QString dirName() { return iRootDir; }
@@ -88,6 +88,7 @@ private:
     bool removeExtraLines(int aReserve);
 
 private:
+    AppSettings* iSettings;
     QThreadPool* iThreadPool;
     QList<Entry*> iMessages;
     QString iArchivePath;
@@ -97,7 +98,6 @@ private:
     QTemporaryDir iTempDir;
     QString iRootDir;
     QFile iLogFile;
-    MGConfItem* iLogSizeLimitConf;
     SaveTask* iSaveTask;
     int iLogSizeLimit;
     int iLogRemoveCount;

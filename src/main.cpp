@@ -29,6 +29,7 @@
   THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "appsettings.h"
 #include "mmslogmodel.h"
 #include "mmsengine.h"
 #include "mmsdebug.h"
@@ -66,7 +67,6 @@ sigchild_action(
 
 static void register_types(const char* uri, int v1 = 1, int v2 = 0)
 {
-    qmlRegisterType<FsIoLogModel>(uri, v1, v2, "FsIoLogModel");
     qmlRegisterType<TransferMethodsModel>(uri, v1, v2, "TransferMethodsModel");
 }
 
@@ -139,7 +139,8 @@ int main(int argc, char *argv[])
     }
 
     // Start (or restart) mms-engine
-    FsIoLogModel* mmsLog = new FsIoLogModel(app);
+    AppSettings* settings = new AppSettings(app);
+    FsIoLogModel* mmsLog = new FsIoLogModel(settings, app);
     MMSEngine* mmsEngine = new MMSEngine(mmsLog->dirName(), app);
     mmsLog->connect(mmsEngine, SIGNAL(message(QString,bool)),
         SLOT(append(QString,bool)));
@@ -156,6 +157,7 @@ int main(int argc, char *argv[])
     QQuickView* view = SailfishApp::createView();
     QQmlContext* context = view->rootContext();
     context->setContextProperty("FsIoLog", mmsLog);
+    context->setContextProperty("AppSettings", settings);
     view->setSource(SailfishApp::pathTo("qml/main.qml"));
     view->showFullScreen();
 
