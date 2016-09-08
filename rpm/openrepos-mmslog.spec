@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.8
+Version:    1.0.9
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -8,7 +8,7 @@ Vendor:     slava
 URL:        http://github.com/monich/harbour-mmslog
 Source0:    %{name}-%{version}.tar.bz2
 
-Requires:   sailfishsilica-qt5 >= 0.10.9
+Requires:   sailfishsilica-qt5
 BuildRequires: pkgconfig(sailfishapp)
 BuildRequires: pkgconfig(Qt5Quick)
 BuildRequires: pkgconfig(Qt5Qml)
@@ -52,6 +52,9 @@ desktop-file-install --delete-original \
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog
+* Fri Sep  9 2016 Slava Monich <slava.monich@jolla.com> 1.0.9
+- Make font size configurable
+
 * Mon Sep 06 2016 Slava Monich <slava.monich@jolla.com> 1.0.8
 - Added app settings and build for openrepos
 
