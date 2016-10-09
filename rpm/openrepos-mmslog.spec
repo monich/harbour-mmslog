@@ -18,13 +18,13 @@ BuildRequires: pkgconfig(mlite5)
 BuildRequires: desktop-file-utils
 BuildRequires: qt5-qttools-linguist
 
-%description
-Application for gathering MMS troubleshooting information.
-
 %{!?qtc_qmake:%define qtc_qmake %qmake}
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
+
+%description
+Application for gathering MMS troubleshooting information.
 
 %prep
 %setup -q -n %{name}-%{version}

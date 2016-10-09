@@ -1,3 +1,4 @@
+NAME = mmslog
 openrepos {
     PREFIX = openrepos
     DEFINES += OPENREPOS
@@ -9,10 +10,10 @@ app_settings {
     # This path is hardcoded in jolla-settings
     TRANSLATIONS_PATH = /usr/share/translations
 } else {
-    TRANSLATIONS_PATH = /usr/share/$${PREFIX}-mmslog/translations
+    TRANSLATIONS_PATH = /usr/share/$${PREFIX}-$${NAME}/translations
 }
 
-TARGET = $${PREFIX}-mmslog
+TARGET = $${PREFIX}-$${NAME}
 QT += dbus
 CONFIG += sailfishapp link_pkgconfig
 PKGCONFIG += mlite5 sailfishapp
@@ -48,13 +49,13 @@ SOURCES += \
     src/transfermethodsmodel.cpp
 
 OTHER_FILES += \
-    harbour-mmslog.png \
-    harbour-mmslog.desktop \
+    harbour-$${NAME}.png \
+    harbour-$${NAME}.desktop \
     qml/main.qml \
     qml/cover/*.qml \
     qml/pages/*.qml \
     settings/*.qml \
-    settings/harbour-mmslog.json \
+    settings/harbour-$${NAME}.json \
     icons/*.svg \
     src/*.xml \
     translations/*.ts \
@@ -68,7 +69,7 @@ for(s, ICON_SIZES) {
     $${icon_target}.files = $${icon_dir}/$${TARGET}.png
     $${icon_target}.path = /usr/share/icons/hicolor/$${s}x$${s}/apps
     equals(PREFIX, "openrepos") {
-        $${icon_target}.extra = cp $${icon_dir}/harbour-mmslog.png $$eval($${icon_target}.files)
+        $${icon_target}.extra = cp $${icon_dir}/harbour-$${NAME}.png $$eval($${icon_target}.files)
         $${icon_target}.CONFIG += no_check_exist
     }
     INSTALLS += $${icon_target}
@@ -79,7 +80,7 @@ app_settings {
     settings_json.files = settings/$${TARGET}.json
     settings_json.path = /usr/share/jolla-settings/entries/
     equals(PREFIX, "openrepos") {
-        settings_json.extra = sed s/harbour/openrepos/g settings/harbour-mmslog.json > $$eval(settings_json.files)
+        settings_json.extra = sed s/harbour/openrepos/g settings/harbour-$${NAME}.json > $$eval(settings_json.files)
         settings_json.CONFIG += no_check_exist
     }
     settings_qml.files = settings/*.qml
@@ -89,7 +90,7 @@ app_settings {
 
 # Desktop file
 equals(PREFIX, "openrepos") {
-    desktop.extra = sed s/harbour/openrepos/g harbour-mmslog.desktop > $${TARGET}.desktop
+    desktop.extra = sed s/harbour/openrepos/g harbour-$${NAME}.desktop > $${TARGET}.desktop
     desktop.CONFIG += no_check_exist
 }
 
