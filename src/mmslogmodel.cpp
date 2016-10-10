@@ -7,6 +7,7 @@
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
@@ -261,6 +262,7 @@ void FsIoLogModel::clear()
 void FsIoLogModel::flush()
 {
     LOG("flush");
+    Q_EMIT flushed();
     iLogFile.flush();
 }
 
@@ -291,9 +293,9 @@ QString FsIoLogModel::archiveType() const
 
 void FsIoLogModel::pack()
 {
+    flush();
     (iArchivePath = "/tmp/").append(iArchiveFile);
     LOG("Creating" << iArchivePath);
-    iLogFile.flush();
     if (iPid > 0) kill(iPid, SIGKILL);
     iPid = fork();
     if (iPid > 0) {
@@ -301,6 +303,7 @@ void FsIoLogModel::pack()
         packingChanged();
     } else if (iPid == 0) {
         // Child
+        sleep(1); // To improve parent's chance to finish the flush
         execlp("tar", "tar", "-czf", qPrintable(iArchivePath), "-C",
             qPrintable(iTempDir.path()), qPrintable(iArchiveName), NULL);
     }

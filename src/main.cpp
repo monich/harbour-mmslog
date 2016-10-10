@@ -7,6 +7,7 @@
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
@@ -34,7 +35,7 @@
 #include "mmsengine.h"
 #include "mmsdebug.h"
 #include "sigchildaction.h"
-#include "ofonoinfosaver.h"
+#include "ofonologger.h"
 #include "transfermethodsmodel.h"
 
 #include <sailfishapp.h>
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication* app = SailfishApp::application(argc, argv);
     TransferMethodInfo::registerType();
-    OfonoInfoSaver::registerType();
+    OfonoLogger::registerType();
     register_types(PLUGIN_PREFIX, 1, 0);
 
     // Load translations
@@ -164,7 +165,8 @@ int main(int argc, char *argv[])
     QString dir(mmsLog->dirName());
     save_disk_usage(dir);
     QFile::copy("/etc/sailfish-release", dir + "/sailfish-release");
-    new OfonoInfoSaver(dir, app);
+    OfonoLogger* ofono = new OfonoLogger(dir, settings, app);
+    ofono->connect(mmsLog, SIGNAL(flushed()), SLOT(flush()));
     int ret = app->exec();
 
     sigChildHandler = NULL;

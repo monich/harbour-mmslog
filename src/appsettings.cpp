@@ -39,16 +39,21 @@
 #define DCONF_KEY(key)              QString("/apps/harbour-mmslog/%1").arg(key)
 #define DCONF_LOG_SIZE_LIMIT        DCONF_KEY("logSizeLimit")
 #define DCONF_FONT_SIZE_ADJUSTMENT  DCONF_KEY("fontSizeAdjustment")
+#define DCONF_OFONO_LOG_TYPE        DCONF_KEY("ofonoLogType")
 
 const int AppSettings::DEFAULT_LOG_SIZE_LIMIT = 1000;
 const int AppSettings::DEFAULT_FONT_SIZE_ADJUSTMENT = 0;
+const AppSettings::OfonoLogType AppSettings::DEFAULT_OFONO_LOG_TYPE =
+    AppSettings::OfonoLogNormal;
 
 AppSettings::AppSettings(QObject* aParent) : QObject(aParent),
     iLogSizeLimit(new MGConfItem(DCONF_LOG_SIZE_LIMIT, this)),
-    iFontSizeAdjustment(new MGConfItem(DCONF_FONT_SIZE_ADJUSTMENT, this))
+    iFontSizeAdjustment(new MGConfItem(DCONF_FONT_SIZE_ADJUSTMENT, this)),
+    iOfonoLogType(new MGConfItem(DCONF_OFONO_LOG_TYPE, this))
 {
     connect(iLogSizeLimit, SIGNAL(valueChanged()), SIGNAL(logSizeLimitChanged()));
     connect(iFontSizeAdjustment, SIGNAL(valueChanged()), SIGNAL(fontSizeAdjustmentChanged()));
+    connect(iOfonoLogType, SIGNAL(valueChanged()), SIGNAL(ofonoLogTypeChanged()));
 }
 
 int AppSettings::logSizeLimit() const
@@ -67,4 +72,21 @@ int AppSettings::logSizeLimit() const
 int AppSettings::fontSizeAdjustment() const
 {
     return iFontSizeAdjustment->value(DEFAULT_FONT_SIZE_ADJUSTMENT).toInt();
+}
+
+AppSettings::OfonoLogType AppSettings::ofonoLogType() const
+{
+    OfonoLogType value = (OfonoLogType)
+        iOfonoLogType->value(DEFAULT_OFONO_LOG_TYPE).toInt();
+    switch (value) {
+    case OfonoLogOff:
+    case OfonoLogMinimal:
+    case OfonoLogNormal:
+    case OfonoLogVerbose:
+    case OfonoLogFull:
+        return value;
+    case OfonoLogTypes:
+        break;
+    }
+    return DEFAULT_OFONO_LOG_TYPE;
 }

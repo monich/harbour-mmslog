@@ -15,6 +15,9 @@ BuildRequires: pkgconfig(Qt5Qml)
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: pkgconfig(mlite5)
+BuildRequires: pkgconfig(gio-2.0)
+BuildRequires: pkgconfig(glib-2.0)
+BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: desktop-file-utils
 BuildRequires: qt5-qttools-linguist
 

@@ -39,25 +39,40 @@ class MGConfItem;
 class AppSettings : public QObject
 {
     Q_OBJECT
+    Q_ENUMS(OfonoLogType)
     Q_PROPERTY(int logSizeLimit READ logSizeLimit NOTIFY logSizeLimitChanged)
     Q_PROPERTY(int fontSizeAdjustment READ fontSizeAdjustment NOTIFY fontSizeAdjustmentChanged)
+    Q_PROPERTY(int ofonoLogType READ ofonoLogType NOTIFY ofonoLogTypeChanged)
 
 public:
+    enum OfonoLogType {
+        OfonoLogOff,
+        OfonoLogMinimal,
+        OfonoLogNormal,
+        OfonoLogVerbose,
+        OfonoLogFull,
+        OfonoLogTypes
+    };
+
     explicit AppSettings(QObject* aParent = NULL);
 
     static const int DEFAULT_LOG_SIZE_LIMIT;
     static const int DEFAULT_FONT_SIZE_ADJUSTMENT;
+    static const OfonoLogType DEFAULT_OFONO_LOG_TYPE;
 
     int logSizeLimit() const;
     int fontSizeAdjustment() const;
+    OfonoLogType ofonoLogType() const;
 
 Q_SIGNALS:
     void logSizeLimitChanged();
     void fontSizeAdjustmentChanged();
+    void ofonoLogTypeChanged();
 
 private:
     MGConfItem* iLogSizeLimit;
     MGConfItem* iFontSizeAdjustment;
+    MGConfItem* iOfonoLogType;
 };
 
 QML_DECLARE_TYPE(AppSettings)

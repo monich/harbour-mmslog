@@ -1,0 +1,6 @@
+[submodule "src/libdbuslog"]
+	path = src/libdbuslog
+	url = https://git.merproject.org/mer-core/libdbuslog.git
+[submodule "src/libglibutil"]
+	path = src/libglibutil
+	url = https://git.merproject.org/mer-core/libglibutil.git

@@ -16,14 +16,48 @@ app_settings {
 TARGET = $${PREFIX}-$${NAME}
 QT += dbus
 CONFIG += sailfishapp link_pkgconfig
-PKGCONFIG += mlite5 sailfishapp
-QMAKE_CXXFLAGS += -Wno-unused-parameter
+PKGCONFIG += mlite5 sailfishapp gio-2.0 gio-unix-2.0 glib-2.0
+QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-psabi
+QMAKE_CFLAGS += -Wno-unused-parameter
 
 CONFIG(debug, debug|release) {
   DEFINES += DEBUG
 }
 
-INCLUDEPATH += src
+LIBGLIBUTIL = src/libglibutil
+LIBGLIBUTIL_SRC = $${LIBGLIBUTIL}/src
+LIBGLIBUTIL_INCLUDE = $${LIBGLIBUTIL}/include
+
+LIBDBUSLOG = src/libdbuslog
+LIBDBUSLOG_COMMON = $${LIBDBUSLOG}/common
+LIBDBUSLOG_COMMON_SRC = $${LIBDBUSLOG_COMMON}/src
+LIBDBUSLOG_COMMON_INCLUDE = $${LIBDBUSLOG_COMMON}/include
+
+LIBDBUSLOG_CLIENT = $${LIBDBUSLOG}/client
+LIBDBUSLOG_CLIENT_SRC = $${LIBDBUSLOG_CLIENT}/src
+LIBDBUSLOG_CLIENT_INCLUDE = $${LIBDBUSLOG_CLIENT}/include
+
+SOURCES += \
+    $${LIBDBUSLOG_COMMON_SRC}/dbuslog_category.c \
+    $${LIBDBUSLOG_COMMON_SRC}/dbuslog_message.c
+
+SOURCES += \
+    $${LIBDBUSLOG_CLIENT_SRC}/dbuslog_client.c \
+    $${LIBDBUSLOG_CLIENT_SRC}/dbuslog_receiver.c
+
+SOURCES += \
+    $${LIBGLIBUTIL_SRC}/gutil_log.c \
+    $${LIBGLIBUTIL_SRC}/gutil_misc.c \
+    $${LIBGLIBUTIL_SRC}/gutil_ring.c \
+    $${LIBGLIBUTIL_SRC}/gutil_strv.c
+
+INCLUDEPATH += \
+    src \
+    include \
+    $${HARBOUR_LIB_DIR}/include \
+    $${LIBDBUSLOG_COMMON_INCLUDE} \
+    $${LIBDBUSLOG_CLIENT_INCLUDE} \
+    $${LIBGLIBUTIL_INCLUDE}
 
 HEADERS += \
     src/appsettings.h \
@@ -32,7 +66,7 @@ HEADERS += \
     src/mmsdebug.h \
     src/mmslogmodel.h \
     src/ofonodbustypes.h \
-    src/ofonoinfosaver.h \
+    src/ofonologger.h \
     src/sigchildaction.h \
     src/transfermethodinfo.h \
     src/transfermethodsmodel.h
@@ -43,7 +77,7 @@ SOURCES += \
     src/mmsengine.cpp \
     src/mmsenginelog.cpp \
     src/mmslogmodel.cpp \
-    src/ofonoinfosaver.cpp \
+    src/ofonologger.cpp \
     src/sigchildaction.cpp \
     src/transfermethodinfo.cpp \
     src/transfermethodsmodel.cpp
@@ -60,6 +94,30 @@ OTHER_FILES += \
     src/*.xml \
     translations/*.ts \
     rpm/*.spec
+
+DBUS_SPEC_DIR = $$_PRO_FILE_PWD_/src/libdbuslog/spec
+
+OTHER_FILES += \
+  $${DBUS_SPEC_DIR}/org.nemomobile.Logger.xml
+
+# org.nemomobile.Logger
+DBUSLOGGER_XML = $${DBUS_SPEC_DIR}/org.nemomobile.Logger.xml
+DBUSLOGGER_GENERATE = gdbus-codegen --generate-c-code \
+  org.nemomobile.Logger $${DBUSLOGGER_XML}
+DBUSLOGGER_H = org.nemomobile.Logger.h
+org_nemomobile_Logger_h.input = DBUSLOGGER_XML
+org_nemomobile_Logger_h.output = $${DBUSLOGGER_H}
+org_nemomobile_Logger_h.commands = $${DBUSLOGGER_GENERATE}
+org_nemomobile_Logger_h.CONFIG = no_link
+QMAKE_EXTRA_COMPILERS += org_nemomobile_Logger_h
+
+DBUSLOGGER_C = org.nemomobile.Logger.c
+org_nemomobile_Logger_c.input = DBUSLOGGER_XML
+org_nemomobile_Logger_c.output = $${DBUSLOGGER_C}
+org_nemomobile_Logger_c.commands = $${DBUSLOGGER_GENERATE}
+org_nemomobile_Logger_c.CONFIG = no_link
+QMAKE_EXTRA_COMPILERS += org_nemomobile_Logger_c
+GENERATED_SOURCES += $${DBUSLOGGER_C}
 
 # Icons
 ICON_SIZES = 86 108 128 256

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2015 Jolla Ltd.
+  Copyright (C) 2015-2016 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -7,14 +7,15 @@
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
+    * Neither the name of Jolla Ltd nor the names of its contributors may be
+      used to endorse or promote products derived from this software without
+      specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -29,31 +30,27 @@
   THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef OFONOINFOSAVER_H
-#define OFONOINFOSAVER_H
+#ifndef OFONOLOGGER_H
+#define OFONOLOGGER_H
 
-#include "ofonodbustypes.h"
+#include <QObject>
 
-class OrgOfonoManager;
+class AppSettings;
 
-class OfonoInfoSaver : public QObject
+class OfonoLogger : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit OfonoInfoSaver(QString aDir, QObject* aParent = NULL);
-
+    OfonoLogger(QString aDir, AppSettings* aSettings, QObject* aParent);
     static void registerType();
 
-private:
-    void saveInfo(QString aModemPath, const char* aCall);
-
-private Q_SLOTS:
-    void onGetModemsFinished(QDBusPendingCallWatcher* aCall);
+public Q_SLOTS:
+    void flush();
 
 private:
-    QString iDir;
-    OrgOfonoManager* iOfonoManager;
+    class Private;
+    Private* iPrivate;
 };
 
-#endif // OFONOINFOSAVER_H
+#endif // OFONOLOGGER_H
