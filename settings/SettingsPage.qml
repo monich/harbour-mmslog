@@ -48,59 +48,6 @@ Page {
                 title: qsTrId("mmslog-settings-page-header")
             }
 
-            ComboBox {
-                id: logSizeLimitComboBox
-                //% "Screen buffer size"
-                label: qsTrId("mmslog-settings-logsizelimit")
-                //% "Don't worry, everything will be written to the log file regardless of the screen buffer size."
-                description: qsTrId("mmslog-settings-logsizelimit-description")
-                value: currentItem ? currentItem.text : ""
-                menu: logSizeLimitMenu
-                ContextMenu {
-                    id: logSizeLimitMenu
-                    readonly property int defaultIndex: 1
-                    MenuItem {
-                        text: maxLines
-                        readonly property int maxLines: 100
-                    }
-                    MenuItem {
-                        text: maxLines
-                        readonly property int maxLines: 1000
-                    }
-                    MenuItem {
-                        text: maxLines
-                        readonly property int maxLines: 10000
-                    }
-                    MenuItem {
-                        //% "Unlimited"
-                        text: qsTrId("mmslog-settings-logsizelimit-unlimited")
-                        readonly property int maxLines: 0
-                    }
-                }
-                onCurrentIndexChanged: if (currentItem) logSizeLimit.value = currentItem.maxLines
-                Component.onCompleted: updateSelection(logSizeLimit.value)
-                function updateSelection(value) {
-                    if (value === undefined) {
-                        currentIndex = logSizeLimitMenu.defaultIndex
-                    } else {
-                        var n = logSizeLimitMenu.children.length
-                        for (var i=0; i<n; i++) {
-                            if (value === logSizeLimitMenu.children[i].maxLines) {
-                                currentIndex = i
-                                return
-                            }
-                        }
-                        currentItem = null // Non-standard value
-                    }
-                }
-                ConfigurationValue {
-                    id: logSizeLimit
-                    key: rootPath + "logSizeLimit"
-                    onValueChanged: logSizeLimitComboBox.updateSelection(value)
-                    defaultValue: 1000
-                }
-            }
-
             Slider {
                 id: fontSizeSlider
                 width: parent.width
@@ -118,6 +65,60 @@ Page {
                     key: rootPath + "fontSizeAdjustment"
                     onValueChanged: fontSizeSlider.value = fontSizeSlider.minimumValue + value
                     defaultValue: 0
+                }
+            }
+
+            SettingsComboBox {
+                key: rootPath + "logSizeLimit"
+                //% "Screen buffer size"
+                label: qsTrId("mmslog-settings-logsizelimit")
+                //% "Don't worry, everything will be written to the log file regardless of the screen buffer size."
+                description: qsTrId("mmslog-settings-logsizelimit-description")
+                menu: ContextMenu {
+                    readonly property int defaultIndex: 1
+                    MenuItem {
+                        text: value
+                        readonly property int value: 100
+                    }
+                    MenuItem {
+                        text: value
+                        readonly property int value: 1000
+                    }
+                    MenuItem {
+                        text: value
+                        readonly property int value: 10000
+                    }
+                    MenuItem {
+                        //% "Unlimited"
+                        text: qsTrId("mmslog-settings-logsizelimit-unlimited")
+                        readonly property int value: 0
+                    }
+                }
+            }
+
+            SettingsComboBox {
+                key: rootPath + "ofonoLogType"
+                //% "Ofono log"
+                label: qsTrId("mmslog-settings-ofonolog-label")
+                //% "Ofono log provides additional information on what's happening at telephony level. Currently this log is not visible in the user interface but if enabled, it's packed and stored in the tarball."
+                description: qsTrId("mmslog-settings-ofonolog-description")
+                menu: ContextMenu {
+                    readonly property int defaultIndex: 1
+                    MenuItem {
+                        //% "Off"
+                        text: qsTrId("mmslog-settings-ofonolog-value-off")
+                        readonly property int value: 0
+                    }
+                    MenuItem {
+                        //% "Normal"
+                        text: qsTrId("mmslog-settings-ofonolog-value-normal")
+                        readonly property int value: 2
+                    }
+                    MenuItem {
+                        //% "Full"
+                        text: qsTrId("mmslog-settings-ofonolog-value-full")
+                        readonly property int value: 4
+                    }
                 }
             }
         }

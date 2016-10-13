@@ -67,5 +67,25 @@
         <source>Font size</source>
         <translation>Размер шрифта</translation>
     </message>
+    <message id="mmslog-settings-ofonolog-label">
+        <source>Ofono log</source>
+        <translation>Журнал ofono</translation>
+    </message>
+    <message id="mmslog-settings-ofonolog-description">
+        <source>Ofono log provides additional information on what&apos;s happening at telephony level. Currently this log is not visible in the user interface but if enabled, it&apos;s packed and stored in the tarball.</source>
+        <translation>Дополнительная информация о том, что происходит на уровне телефонии. В настоящее время эта информация никак не отображается на экране, но упаковывается и отправляется вместе со всем остальным.</translation>
+    </message>
+    <message id="mmslog-settings-ofonolog-value-off">
+        <source>Off</source>
+        <translation>Отключен</translation>
+    </message>
+    <message id="mmslog-settings-ofonolog-value-normal">
+        <source>Normal</source>
+        <translation>Самое нужное</translation>
+    </message>
+    <message id="mmslog-settings-ofonolog-value-full">
+        <source>Full</source>
+        <translation>Вообще всё</translation>
+    </message>
 </context>
 </TS>
