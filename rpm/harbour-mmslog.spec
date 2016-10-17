@@ -1,6 +1,6 @@
 Name:       harbour-mmslog
 Summary:    MMS Logger
-Version:    1.0.9
+Version:    1.0.10
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -21,13 +21,13 @@ BuildRequires: pkgconfig(gio-unix-2.0)
 BuildRequires: desktop-file-utils
 BuildRequires: qt5-qttools-linguist
 
-%description
-Application for gathering MMS troubleshooting information.
-
 %{!?qtc_qmake:%define qtc_qmake %qmake}
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
+
+%description
+Application for gathering MMS troubleshooting information.
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -53,6 +53,9 @@ desktop-file-install --delete-original \
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %changelog
+* Mon Oct 17 2016 Slava Monich <slava.monich@jolla.com> 1.0.10
+- Save ofono logs if they are available
+
 * Fri Sep  9 2016 Slava Monich <slava.monich@jolla.com> 1.0.9
 - Make font size configurable
 
