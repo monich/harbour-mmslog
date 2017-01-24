@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2015-2016 Jolla Ltd.
+  Copyright (C) 2015-2017 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -104,11 +104,12 @@ public:
     static void logMessage(DBusLogClient* aClient, DBusLogCategory* aCategory,
         DBusLogMessage* aMessage, gpointer aData);
 
-    void onLogConnect();
-    void onLogMessage(DBusLogCategory* aCategory, DBusLogMessage* aMessage);
-
     void setLogType(AppSettings::OfonoLogType aType);
     void flush();
+
+private Q_SLOTS:
+    void onLogConnect();
+    void onLogMessage(DBusLogCategory* aCategory, DBusLogMessage* aMessage);
 
 public:
     QString iPath;
@@ -194,7 +195,8 @@ OfonoLogger::Private::Capture::logConnect(
     DBusLogClient* aClient,
     gpointer aData)
 {
-    ((Capture*)aData)->onLogConnect();
+    // Why invokeMethod? See https://bugreports.qt.io/browse/QTBUG-18434
+    QMetaObject::invokeMethod((Capture*)aData, "onLogConnect");
 }
 
 void
@@ -204,7 +206,10 @@ OfonoLogger::Private::Capture::logMessage(
     DBusLogMessage* aMessage,
     gpointer aData)
 {
-    ((Capture*)aData)->onLogMessage(aCategory, aMessage);
+    // Why invokeMethod? See https://bugreports.qt.io/browse/QTBUG-18434
+    QMetaObject::invokeMethod((Capture*)aData, "onLogMessage",
+        Q_ARG(DBusLogCategory*,aCategory),
+        Q_ARG(DBusLogMessage*,aMessage));
 }
 
 void
@@ -310,7 +315,7 @@ OfonoLogger::Private::Capture::run()
                 DBusLogCategory* cat = entry->cat;
                 DBusLogMessage* msg = entry->msg;
 
-                // See if we stkipped anything
+                // See if we skipped anything
                 if (last && (last->index + 1 != msg->index)) {
                     const guint32 skip = msg->index - last->index - 1;
                     file.write(QString("... skipped %1 entries\n").
@@ -320,7 +325,8 @@ OfonoLogger::Private::Capture::run()
                 // Write this message
                 QString line;
                 QDateTime t(QDateTime::fromMSecsSinceEpoch(msg->timestamp/1000));
-                QString timestamp(t.toString("yyyy-MM-dd hh:mm:ss.zzz "));
+                static const QString TIME_FORMAT("yyyy-MM-dd hh:mm:ss.zzz ");
+                QString timestamp(t.toString(TIME_FORMAT));
                 QString text(QString::fromUtf8(msg->string, msg->length));
                 if (cat && !(cat->flags & DBUSLOG_CATEGORY_FLAG_HIDE_NAME)) {
                     static const QString FORMAT1("%1%2: %3\n");
