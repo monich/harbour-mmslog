@@ -105,6 +105,7 @@ public:
         DBusLogMessage* aMessage, gpointer aData);
 
     void setLogType(AppSettings::OfonoLogType aType);
+    void checkDefaultLogLevel();
     void flush();
 
 private Q_SLOTS:
@@ -213,6 +214,17 @@ OfonoLogger::Private::Capture::logMessage(
 }
 
 void
+OfonoLogger::Private::Capture::checkDefaultLogLevel()
+{
+    if (iLogType >= AppSettings::OfonoLogFull) {
+        if (iClient->default_level < DBUSLOG_LEVEL_VERBOSE) {
+            dbus_log_client_set_default_level(iClient,
+                DBUSLOG_LEVEL_VERBOSE, NULL, NULL);
+        }
+    }
+}
+
+void
 OfonoLogger::Private::Capture::onLogConnect()
 {
     if (!iMessageRing && iClient->connected) {
@@ -235,6 +247,7 @@ OfonoLogger::Private::Capture::onLogConnect()
                     gutil_strv_add(iEnabledCategories[type], cat->name);
             }
         }
+        checkDefaultLogLevel();
         for (int type = 0; type <= iLogType; type++) {
             GStrV* cats = iEnabledCategories[type];
             if (cats) {
@@ -264,6 +277,7 @@ OfonoLogger::Private::Capture::setLogType(
             }
         } else if (iLogType < aType) {
             // Log level has been increased
+            checkDefaultLogLevel();
             for (int type = iLogType+1; type <= aType; type++) {
                 GStrV* cats = iEnabledCategories[type];
                 if (cats) {
