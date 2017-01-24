@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.10
+Version:    1.0.11
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -55,6 +55,9 @@ desktop-file-install --delete-original \
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog
+* Tue Jan 24 2017 Slava Monich <slava.monich@jolla.com> 1.0.11
+- Added Swedish translations
+
 * Mon Oct 17 2016 Slava Monich <slava.monich@jolla.com> 1.0.10
 - Save ofono logs if they are available
 
