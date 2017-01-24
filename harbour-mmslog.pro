@@ -168,7 +168,7 @@ TRANSLATION_SOURCES = \
   $${_PRO_FILE_PWD_}/qml \
   $${_PRO_FILE_PWD_}/settings
 
-TRANSLATION_FILES = mmslog mmslog-ru
+TRANSLATION_FILES = $${NAME} $${NAME}-ru $${NAME}-sv
 
 for(t, TRANSLATION_FILES) {
     suffix = $$replace(t,-,_)
@@ -182,13 +182,13 @@ for(t, TRANSLATION_FILES) {
         mkdir -p \"$${OUT_PWD}/translations\" &&  [ \"$${in}.ts\" != \"$${out}.ts\" ] && \
         cp -af \"$${in}.ts\" \"$${out}.ts\" || :
 
-    $${lrelease_target}.target = \"$${out}.qm\"
+    $${lrelease_target}.target = $${out}.qm
     $${lrelease_target}.depends = $${lupdate_target}
     $${lrelease_target}.commands = lrelease -idbased \"$${out}.ts\"
 
     QMAKE_EXTRA_TARGETS += $${lrelease_target} $${lupdate_target}
-    PRE_TARGETDEPS += \"$${out}.qm\"
-    qm.files += \"$${out}.qm\"
+    PRE_TARGETDEPS += $${out}.qm
+    qm.files += $${out}.qm
 }
 
 qm.path = $$TRANSLATIONS_PATH
