@@ -1,6 +1,6 @@
 Name:       harbour-mmslog
 Summary:    MMS Logger
-Version:    1.0.11
+Version:    1.0.12
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -53,6 +53,9 @@ desktop-file-install --delete-original \
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %changelog
+* Sat Jan 28 2017 Slava Monich <slava.monich@jolla.com> 1.0.12
+- Fixed a bug in ofono properties dump
+
 * Tue Jan 24 2017 Slava Monich <slava.monich@jolla.com> 1.0.11
 - Added Swedish translations
 
