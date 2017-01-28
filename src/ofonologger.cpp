@@ -49,7 +49,7 @@
 
 #define OFONO_BUS QDBusConnection::systemBus()
 #define OFONO_SERVICE "org.ofono"
-#define OFONO_INTERFACE OrgOfonoManager::staticInterfaceName()
+#define OFONO_INTERFACE_PREFIX "org.ofono."
 
 // Forward declarations
 
@@ -451,8 +451,7 @@ OfonoLogger::Private::saveInfo(
     QString aModemPath,
     const char* aCall)
 {
-    QString call(OFONO_INTERFACE);
-    call += ".";
+    QString call(OFONO_INTERFACE_PREFIX);
     call += aCall;
 
     QString file(iDir);
