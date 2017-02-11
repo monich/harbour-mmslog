@@ -141,10 +141,12 @@ app_settings {
         settings_json.extra = sed s/harbour/openrepos/g settings/harbour-$${NAME}.json > $$eval(settings_json.files)
         settings_json.CONFIG += no_check_exist
     }
-    settings_qml.files = settings/*.qml
-    settings_qml.path = /usr/share/$${TARGET}/settings/
-    INSTALLS += settings_qml settings_json
+    INSTALLS += settings_json
 }
+
+settings_qml.files = settings/*.qml
+settings_qml.path = /usr/share/$${TARGET}/qml/settings/
+INSTALLS += settings_qml
 
 # Desktop file
 equals(PREFIX, "openrepos") {

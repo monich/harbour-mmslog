@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2016 Jolla Ltd.
+  Copyright (C) 2014-2017 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -37,6 +37,7 @@ Page {
     id: page
     allowedOrientations: window.allowedOrientations
     property bool _clear
+    property var _settingsComponent
 
     function packAndShare() {
         FsIoLog.pack()
@@ -54,11 +55,28 @@ Page {
         PullDownMenu {
             id: pullDownMenu
             MenuItem {
+                //: Pulley menu item
+                //% "Settings"
+                text: qsTrId("mmslog-logpage-pm-settings")
+                visible: AppSettingsMenu
+                onClicked: {
+                    if (!_settingsComponent) {
+                        _settingsComponent = Qt.createComponent("../settings/SettingsPage.qml")
+                    }
+                    pageStack.push(_settingsComponent, {
+                        "title" : text,
+                        "allowedOrientations": window.allowedOrientations
+                    })
+                }
+            }
+            MenuItem {
+                //: Pulley menu item
                 //% "Clear log"
                 text: qsTrId("mmslog-logpage-pm-clear-log")
                 onClicked: FsIoLog.clear()
             }
             MenuItem {
+                //: Pulley menu item
                 //% "Pack and send"
                 text: qsTrId("mmslog-logpage-pm-pack-and-send")
                 onClicked: packAndShare()
@@ -68,11 +86,13 @@ Page {
         PushUpMenu {
             id: pushUpMenu
             MenuItem {
+                //: Pulley menu item
                 //% "Pack and send"
                 text: qsTrId("mmslog-logpage-pm-pack-and-send")
                 onClicked: packAndShare()
             }
             MenuItem {
+                //: Pulley menu item
                 //% "Clear log"
                 text: qsTrId("mmslog-logpage-pm-clear-log")
                 onClicked: FsIoLog.clear()

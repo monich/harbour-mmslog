@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2016 Jolla Ltd.
+  Copyright (C) 2014-2017 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -7,14 +7,15 @@
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
-    * Neither the name of the Jolla Ltd nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
+    * Neither the name of Jolla Ltd nor the names of its contributors may
+      be used to endorse or promote products derived from this software
+      without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -36,7 +37,11 @@ import org.nemomobile.notifications 1.0
 Page {
     id: page
     allowedOrientations: window.allowedOrientations
-    backNavigation: _canShare
+    // backNavigation has to be true when the page is pushed to the page stack
+    // so that the right animation is used (consistent with the settings page)
+    backNavigation: _canShare || (status === PageStatus.Activating || status === PageStatus.Inactive)
+    // Don't show the back indicator while the push animation is active
+    showNavigationIndicator: _canShare && (status === PageStatus.Active || status === PageStatus.Deactivating)
     property bool _canShare: !FsIoLog.packing && !FsIoLog.saving && !minWaitTimer.running
     property bool _portrait: page.orientation === Orientation.Portrait
     property real _fullHeight: _portrait ? window.height : window.width

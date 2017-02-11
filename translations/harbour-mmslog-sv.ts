@@ -7,12 +7,19 @@
         <source>MMS</source>
         <translation>MMS</translation>
     </message>
+    <message id="mmslog-logpage-pm-settings">
+        <source>Settings</source>
+        <extracomment>Pulley menu item</extracomment>
+        <translation>Inställningar</translation>
+    </message>
     <message id="mmslog-logpage-pm-pack-and-send">
         <source>Pack and send</source>
+        <extracomment>Pulley menu item</extracomment>
         <translation>Paketera och sänd</translation>
     </message>
     <message id="mmslog-logpage-pm-clear-log">
         <source>Clear log</source>
+        <extracomment>Pulley menu item</extracomment>
         <translation>Rensa loggen</translation>
     </message>
     <message id="mmslog-logpage-title">

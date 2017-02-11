@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.1" language="ru">
 <context>
     <name></name>
     <message id="mmslog-cover-title">
         <source>MMS</source>
         <translation>MMS</translation>
     </message>
+    <message id="mmslog-logpage-pm-settings">
+        <source>Settings</source>
+        <extracomment>Pulley menu item</extracomment>
+        <translation>Настройки</translation>
+    </message>
     <message id="mmslog-logpage-pm-pack-and-send">
         <source>Pack and send</source>
+        <extracomment>Pulley menu item</extracomment>
         <translation>Упаковка и отправка</translation>
     </message>
     <message id="mmslog-logpage-pm-clear-log">
         <source>Clear log</source>
+        <extracomment>Pulley menu item</extracomment>
         <translation>Очистить журнал</translation>
     </message>
     <message id="mmslog-logpage-title">

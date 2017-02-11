@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2014-2016 Jolla Ltd.
+  Copyright (C) 2014-2017 Jolla Ltd.
   Contact: Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
@@ -108,11 +108,14 @@ int main(int argc, char *argv[])
     QLocale locale;
     QTranslator* translator = new QTranslator(app);
 #ifdef OPENREPOS
-    QString transDir("/usr/share/translations");
-    QString transFile("openrepos-mmslog");
+    // OpenRepos build has settings applet
+    const bool appSettingsMenu = false;
+    const QString transDir("/usr/share/translations");
+    const QString transFile("openrepos-mmslog");
 #else
-    QString transDir = SailfishApp::pathTo("translations").toLocalFile();
-    QString transFile("harbour-mmslog");
+    const bool appSettingsMenu = true;
+    const QString transDir = SailfishApp::pathTo("translations").toLocalFile();
+    const QString transFile("harbour-mmslog");
 #endif
     if (translator->load(locale, transFile, "-", transDir) ||
         translator->load(transFile, transDir)) {
@@ -159,6 +162,9 @@ int main(int argc, char *argv[])
     QQmlContext* context = view->rootContext();
     context->setContextProperty("FsIoLog", mmsLog);
     context->setContextProperty("AppSettings", settings);
+    context->setContextProperty("AppSettingsMenu",
+        QVariant::fromValue(appSettingsMenu));
+
     view->setSource(SailfishApp::pathTo("qml/main.qml"));
     view->showFullScreen();
 

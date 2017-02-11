@@ -7,7 +7,7 @@
             "type": "page",
             "icon": "harbour-mmslog",
             "params": {
-                "source": "/usr/share/harbour-mmslog/settings/SettingsPage.qml"
+                "source": "/usr/share/harbour-mmslog/qml/settings/SettingsPage.qml"
             }
         }
     ]
