@@ -46,11 +46,14 @@ desktop-file-install --delete-original \
 
 %files
 %defattr(-,root,root,-)
+%global privileges_dir %{_datarootdir}/mapplauncherd/privileges.d
+%dir %{privileges_dir}
+%{privileges_dir}/%{name}
 %{_bindir}/%{name}
 %{_datadir}/%{name}/qml
+%{_datadir}/translations/%{name}*.qm
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
-%{_datadir}/translations/%{name}*.qm
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog

@@ -93,6 +93,7 @@ OTHER_FILES += \
     icons/*.svg \
     src/*.xml \
     translations/*.ts \
+    privileges/* \
     rpm/*.spec
 
 DBUS_SPEC_DIR = $$_PRO_FILE_PWD_/src/libdbuslog/spec
@@ -147,6 +148,11 @@ app_settings {
 settings_qml.files = settings/*.qml
 settings_qml.path = /usr/share/$${TARGET}/qml/settings/
 INSTALLS += settings_qml
+
+# Priveleges
+privileges.files = privileges/$${TARGET}
+privileges.path = /usr/share/mapplauncherd/privileges.d/
+INSTALLS += privileges
 
 # Desktop file
 equals(PREFIX, "openrepos") {

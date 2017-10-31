@@ -46,6 +46,9 @@ desktop-file-install --delete-original \
 
 %files
 %defattr(-,root,root,-)
+%global privileges_dir %{_datarootdir}/mapplauncherd/privileges.d
+%dir %{privileges_dir}
+%{privileges_dir}/%{name}
 %{_bindir}/%{name}
 %{_datadir}/%{name}/qml
 %{_datadir}/%{name}/translations
