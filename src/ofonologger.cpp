@@ -315,7 +315,7 @@ OfonoLogger::Private::Capture::run()
         DBusLogMessage* last = NULL;
         iMutex.lock();
         while (!iExiting) {
-            LogEntry* entry;
+            LogEntry* entry = NULL;
             bool flush = false;
             while (!iExiting &&
                 !(entry = (LogEntry*)gutil_ring_get(iMessageRing)) &&
