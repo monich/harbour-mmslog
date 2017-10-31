@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.13
+Version:    1.0.14
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -57,6 +57,9 @@ desktop-file-install --delete-original \
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog
+* Wed Nov  1 2017 Slava Monich <slava.monich@jolla.com> 1.0.14
+- Run mms logger as nemo:privileged
+
 * Sat Feb 11 2017 Slava Monich <slava.monich@jolla.com> 1.0.13
 - Added settings page to the harbour app
 
