@@ -47,6 +47,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/fsuid.h>
 
 #define PLUGIN_PREFIX "harbour.mmslog"
 
@@ -103,6 +104,12 @@ int main(int argc, char *argv[])
     TransferMethodInfo::registerType();
     OfonoLogger::registerType();
     register_types(PLUGIN_PREFIX, 1, 0);
+
+    // The application may (and should) be started with "privileged"
+    // effective gid, reset file system identity to the real identity
+    // of the process so that files are owned by nemo:nemo
+    setfsuid(getuid());
+    setfsgid(getgid());
 
     // Load translations
     QLocale locale;
