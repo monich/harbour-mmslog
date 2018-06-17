@@ -1,6 +1,6 @@
 Name:       harbour-mmslog
 Summary:    MMS Logger
-Version:    1.0.14
+Version:    1.0.15
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -56,6 +56,11 @@ desktop-file-install --delete-original \
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %changelog
+* Mon Jun 18 2018 Slava Monich <slava.monich@jolla.com> 1.0.15
+- Freshened up the list of sharing methods
+- Make the log files owned by nemo:nemo
+- Added Dutch translations
+
 * Wed Nov  1 2017 Slava Monich <slava.monich@jolla.com> 1.0.14
 - Run mms logger as nemo:privileged
 
