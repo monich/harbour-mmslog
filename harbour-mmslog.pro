@@ -176,7 +176,10 @@ TRANSLATION_SOURCES = \
   $${_PRO_FILE_PWD_}/qml \
   $${_PRO_FILE_PWD_}/settings
 
-TRANSLATION_FILES = $${NAME} $${NAME}-ru $${NAME}-sv
+TRANSLATION_FILES = $${NAME} \
+  $${NAME}-nl \
+  $${NAME}-ru \
+  $${NAME}-sv
 
 for(t, TRANSLATION_FILES) {
     suffix = $$replace(t,-,_)
