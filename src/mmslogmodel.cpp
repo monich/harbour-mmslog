@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2016 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2018 Jolla Ltd.
+  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -31,8 +31,9 @@
 */
 
 #include "mmslogmodel.h"
-#include "mmsdebug.h"
 #include "appsettings.h"
+
+#include "HarbourDebug.h"
 
 #include <QDateTime>
 #include <QRunnable>
@@ -121,9 +122,9 @@ void FsIoLogModel::SaveTask::run()
     QFile::remove(iDest);
     bool ok = QFile::copy(iSrc, iDest);
     if (ok) {
-        LOG("Copied" << qPrintable(iSrc) << "->" << qPrintable(iDest));
+        HDEBUG("Copied" << qPrintable(iSrc) << "->" << qPrintable(iDest));
     } else {
-        LOG("Failed to copy" << qPrintable(iSrc) << "->" << qPrintable(iDest));
+        HDEBUG("Failed to copy" << qPrintable(iSrc) << "->" << qPrintable(iDest));
     }
     Q_EMIT done(ok);
 }
@@ -149,7 +150,7 @@ FsIoLogModel::FsIoLogModel(AppSettings* aSettings, QObject* aParent) :
     updateLogSizeLimit();
     connect(iSettings, SIGNAL(logSizeLimitChanged()), SLOT(updateLogSizeLimit()));
     iTempDir.setAutoRemove(true);
-    LOG("Temporary directory" << iTempDir.path());
+    HDEBUG("Temporary directory" << iTempDir.path());
     if (!QDir(iRootDir).mkpath(iRootDir)) {
         append(QString("Failed to create ").append(iRootDir));
     }
@@ -224,7 +225,7 @@ bool FsIoLogModel::removeExtraLines(int aReserve)
     const int count = iMessages.count();
     if (iLogSizeLimit > 0 && (count + aReserve) > iLogSizeLimit) {
         const int nremove = (count - iLogSizeLimit) + iLogRemoveCount;
-        LOG("removing last" << nremove << "lines");
+        HDEBUG("removing last" << nremove << "lines");
         beginRemoveRows(QModelIndex(), 0, nremove-1);
         for (int i=0; i<nremove; i++) delete iMessages.at(i);
         iMessages.erase(iMessages.begin(), iMessages.begin()+nremove);
@@ -261,7 +262,7 @@ void FsIoLogModel::clear()
 
 void FsIoLogModel::flush()
 {
-    LOG("flush");
+    HDEBUG("flush");
     Q_EMIT flushed();
     iLogFile.flush();
 }
@@ -295,7 +296,7 @@ void FsIoLogModel::pack()
 {
     flush();
     (iArchivePath = "/tmp/").append(iArchiveFile);
-    LOG("Creating" << iArchivePath);
+    HDEBUG("Creating" << iArchivePath);
     if (iPid > 0) kill(iPid, SIGKILL);
     iPid = fork();
     if (iPid > 0) {
@@ -313,7 +314,7 @@ void FsIoLogModel::pack()
 void FsIoLogModel::processDied(int aPid, int aStatus)
 {
     if (iPid > 0 && iPid == aPid) {
-        LOG("Tar done, pid" << aPid <<", status" << aStatus);
+        HDEBUG("Tar done, pid" << aPid <<", status" << aStatus);
         iPid = -1;
         packingChanged();
     }
@@ -339,7 +340,7 @@ void FsIoLogModel::updateLogSizeLimit()
             iLogRemoveCount = LOG_REMOVE_MAX;
         }
     }
-    LOG("log size limit" << iLogSizeLimit);
+    HDEBUG("log size limit" << iLogSizeLimit);
     if (removeExtraLines(0)) {
         QModelIndex index(createIndex(iMessages.count(), 0));
         emit dataChanged(index, index);
@@ -348,14 +349,14 @@ void FsIoLogModel::updateLogSizeLimit()
 
 void FsIoLogModel::save()
 {
-    LOG(iArchivePath);
+    HDEBUG(iArchivePath);
     if (!iArchivePath.isEmpty() && !iSaveTask) {
         QString fileName = QFileInfo(iArchivePath).fileName();
         QString destPath = QDir::homePath() + "/Documents/" + fileName;
         iSaveTask = new SaveTask(iArchivePath, destPath, this);
         connect(iSaveTask, SIGNAL(done(bool)), SLOT(onSaveTaskDone(bool)),
             Qt::QueuedConnection);
-        LOG(qPrintable(iArchivePath) << "->" << qPrintable(destPath));
+        HDEBUG(qPrintable(iArchivePath) << "->" << qPrintable(destPath));
         iThreadPool->start(iSaveTask);
         Q_EMIT savingChanged();
     }
@@ -363,7 +364,7 @@ void FsIoLogModel::save()
 
 void FsIoLogModel::onSaveTaskDone(bool aSuccess)
 {
-    LOG((aSuccess ? "OK" : "ERROR"));
+    HDEBUG((aSuccess ? "OK" : "ERROR"));
     if (iSaveTask) {
         delete iSaveTask;
         iSaveTask = NULL;

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2015-2017 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2018 Jolla Ltd.
+  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -33,7 +33,8 @@
 #include "ofonologger.h"
 #include "appsettings.h"
 #include "manager_interface.h"
-#include "mmsdebug.h"
+
+#include "HarbourDebug.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -142,7 +143,7 @@ OfonoLogger::Private::Capture::Capture(
     iStarted(false),
     iExiting(false)
 {
-    LOG("initializing ofono logging");
+    HDEBUG("initializing ofono logging");
     memset(iEnabledCategories, 0, sizeof(iEnabledCategories));
     iEventId[LogEventConnect] =
         dbus_log_client_add_connected_handler(iClient, logConnect, this);
@@ -159,7 +160,7 @@ OfonoLogger::Private::Capture::~Capture()
         GStrV* cats = iEnabledCategories[type];
         if (cats) {
             if (type <= iLogType) {
-                LOG("disabling" << gutil_strv_length(cats) << "categories");
+                HDEBUG("disabling" << gutil_strv_length(cats) << "categories");
                 dbus_log_client_disable_categories(iClient, cats, NULL, NULL);
             }
             g_strfreev(cats);
@@ -168,7 +169,7 @@ OfonoLogger::Private::Capture::~Capture()
         }
     }
     if (iStarted) {
-        LOG("stopping ofono log thread");
+        HDEBUG("stopping ofono log thread");
         iMutex.lock();
         iExiting = true;
         iWaitCondition.wakeAll();
@@ -251,11 +252,11 @@ OfonoLogger::Private::Capture::onLogConnect()
         for (int type = 0; type <= iLogType; type++) {
             GStrV* cats = iEnabledCategories[type];
             if (cats) {
-                LOG("enabling" << gutil_strv_length(cats) << "categories");
+                HDEBUG("enabling" << gutil_strv_length(cats) << "categories");
                 dbus_log_client_enable_categories(iClient, cats, NULL, NULL);
             }
         }
-        LOG("starting ofono log thread");
+        HDEBUG("starting ofono log thread");
         iStarted = true;
         start();
     }
@@ -271,7 +272,7 @@ OfonoLogger::Private::Capture::setLogType(
             for (int type = iLogType; type > aType; type--) {
                 GStrV* cats = iEnabledCategories[type];
                 if (cats) {
-                    LOG("disabling" << gutil_strv_length(cats) << "categories");
+                    HDEBUG("disabling" << gutil_strv_length(cats) << "categories");
                     dbus_log_client_disable_categories(iClient, cats, NULL, NULL);
                 }
             }
@@ -281,7 +282,7 @@ OfonoLogger::Private::Capture::setLogType(
             for (int type = iLogType+1; type <= aType; type++) {
                 GStrV* cats = iEnabledCategories[type];
                 if (cats) {
-                    LOG("enabling" << gutil_strv_length(cats) << "categories");
+                    HDEBUG("enabling" << gutil_strv_length(cats) << "categories");
                     dbus_log_client_enable_categories(iClient, cats, NULL, NULL);
                 }
             }
@@ -309,7 +310,7 @@ OfonoLogger::Private::Capture::onLogMessage(
 void
 OfonoLogger::Private::Capture::run()
 {
-    LOG("ofono log thread started");
+    HDEBUG("ofono log thread started");
     QFile file(iPath);
     if (file.open(QFile::Text | QFile::ReadWrite)) {
         DBusLogMessage* last = NULL;
@@ -357,7 +358,7 @@ OfonoLogger::Private::Capture::run()
                 last = msg;
             }
             if (flush) {
-                LOG("flushing ofono log");
+                HDEBUG("flushing ofono log");
                 file.flush();
             }
             iMutex.lock();
@@ -366,9 +367,9 @@ OfonoLogger::Private::Capture::run()
         file.close();
         dbus_log_message_unref(last);
     } else {
-        WARN("Failed to open " << qPrintable(file.fileName()));
+        HWARN("Failed to open " << qPrintable(file.fileName()));
     }
-    LOG("ofono log thread exiting");
+    HDEBUG("ofono log thread exiting");
 }
 
 void
@@ -408,13 +409,13 @@ void
 OfonoLogger::Private::onOfonoLogTypeChanged()
 {
     const AppSettings::OfonoLogType logType = iSettings->ofonoLogType();
-    LOG(logType);
+    HDEBUG(logType);
     if (logType == AppSettings::OfonoLogOff) {
         if (iCapture) {
             delete iCapture;
             iCapture = NULL;
             if (QFile::remove(iLogFile)) {
-                LOG("removed" << qPrintable(iLogFile));
+                HDEBUG("removed" << qPrintable(iLogFile));
             }
         }
     } else {

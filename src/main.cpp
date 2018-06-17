@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2017 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2018 Jolla Ltd.
+  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -33,10 +33,12 @@
 #include "appsettings.h"
 #include "mmslogmodel.h"
 #include "mmsengine.h"
-#include "mmsdebug.h"
-#include "sigchildaction.h"
 #include "ofonologger.h"
-#include "transfermethodsmodel.h"
+
+#include "HarbourDebug.h"
+#include "HarbourSigChildHandler.h"
+#include "HarbourTransferMethodInfo.h"
+#include "HarbourTransferMethodsModel.h"
 
 #include <sailfishapp.h>
 #include <QGuiApplication>
@@ -51,25 +53,9 @@
 
 #define PLUGIN_PREFIX "harbour.mmslog"
 
-static SigChildAction* sigChildHandler = NULL;
-
-static
-void
-sigchild_action(
-    int,
-    siginfo_t* aInfo,
-    void*)
-{
-    int status = -1;
-    waitpid(aInfo->si_pid, &status, 0);
-    if (sigChildHandler) {
-        sigChildHandler->notify(aInfo->si_pid, status);
-    }
-}
-
 static void register_types(const char* uri, int v1 = 1, int v2 = 0)
 {
-    qmlRegisterType<TransferMethodsModel>(uri, v1, v2, "TransferMethodsModel");
+    qmlRegisterType<HarbourTransferMethodsModel>(uri, v1, v2, "TransferMethodsModel");
 }
 
 static bool load_transferengine_translations(QTranslator* tr, QLocale locale)
@@ -78,7 +64,7 @@ static bool load_transferengine_translations(QTranslator* tr, QLocale locale)
         "/usr/share/translations")) {
         return true;
     } else {
-        LOG("Failed to load transferengine plugin translator for" << locale);
+        HDEBUG("Failed to load transferengine plugin translator for" << locale);
         return false;
     }
 }
@@ -101,7 +87,7 @@ static void save_disk_usage(QString dir)
 int main(int argc, char *argv[])
 {
     QGuiApplication* app = SailfishApp::application(argc, argv);
-    TransferMethodInfo::registerType();
+    HarbourTransferMethodInfo2::registerTypes();
     OfonoLogger::registerType();
     register_types(PLUGIN_PREFIX, 1, 0);
 
@@ -128,7 +114,7 @@ int main(int argc, char *argv[])
         translator->load(transFile, transDir)) {
         app->installTranslator(translator);
     } else {
-        LOG("Failed to load translator for" << locale);
+        HDEBUG("Failed to load translator for" << locale);
         delete translator;
     }
     translator = new QTranslator(app);
@@ -140,14 +126,8 @@ int main(int argc, char *argv[])
     }
 
     // Install signal handler
-    sigChildHandler = SigChildAction::create(app);
-    if (sigChildHandler) {
-        struct sigaction act;
-        memset(&act, 0, sizeof(act));
-        act.sa_sigaction = &sigchild_action;
-        act.sa_flags = SA_SIGINFO;
-        sigaction(SIGCHLD, &act, NULL);
-    }
+    HarbourSigChildHandler* sigChildHandler =
+        HarbourSigChildHandler::install(app);
 
     // Start (or restart) mms-engine
     AppSettings* settings = new AppSettings(app);

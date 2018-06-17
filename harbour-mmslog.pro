@@ -21,8 +21,12 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter -Wno-psabi
 QMAKE_CFLAGS += -Wno-unused-parameter
 
 CONFIG(debug, debug|release) {
-  DEFINES += DEBUG
+  DEFINES += DEBUG HARBOUR_DEBUG
 }
+
+HARBOUR_LIB = src/harbour-lib
+HARBOUR_LIB_INCLUDE = $${HARBOUR_LIB}/include
+HARBOUR_LIB_SRC = $${HARBOUR_LIB}/src
 
 LIBGLIBUTIL = src/libglibutil
 LIBGLIBUTIL_SRC = $${LIBGLIBUTIL}/src
@@ -51,10 +55,21 @@ SOURCES += \
     $${LIBGLIBUTIL_SRC}/gutil_ring.c \
     $${LIBGLIBUTIL_SRC}/gutil_strv.c
 
+HEADERS += \
+    $${HARBOUR_LIB_INCLUDE}/HarbourDebug.h \
+    $${HARBOUR_LIB_INCLUDE}/HarbourSigChildHandler.h \
+    $${HARBOUR_LIB_INCLUDE}/HarbourTransferMethodInfo.h \
+    $${HARBOUR_LIB_INCLUDE}/HarbourTransferMethodsModel.h
+
+SOURCES += \
+    $${HARBOUR_LIB_SRC}/HarbourSigChildHandler.cpp \
+    $${HARBOUR_LIB_SRC}/HarbourTransferMethodInfo.cpp \
+    $${HARBOUR_LIB_SRC}/HarbourTransferMethodsModel.cpp
+
 INCLUDEPATH += \
     src \
     include \
-    $${HARBOUR_LIB_DIR}/include \
+    $${HARBOUR_LIB_INCLUDE} \
     $${LIBDBUSLOG_COMMON_INCLUDE} \
     $${LIBDBUSLOG_CLIENT_INCLUDE} \
     $${LIBGLIBUTIL_INCLUDE}
@@ -63,13 +78,9 @@ HEADERS += \
     src/appsettings.h \
     src/mmsengine.h \
     src/mmsenginelog.h \
-    src/mmsdebug.h \
     src/mmslogmodel.h \
     src/ofonodbustypes.h \
-    src/ofonologger.h \
-    src/sigchildaction.h \
-    src/transfermethodinfo.h \
-    src/transfermethodsmodel.h
+    src/ofonologger.h
 
 SOURCES += \
     src/appsettings.cpp \
@@ -77,10 +88,7 @@ SOURCES += \
     src/mmsengine.cpp \
     src/mmsenginelog.cpp \
     src/mmslogmodel.cpp \
-    src/ofonologger.cpp \
-    src/sigchildaction.cpp \
-    src/transfermethodinfo.cpp \
-    src/transfermethodsmodel.cpp
+    src/ofonologger.cpp
 
 OTHER_FILES += \
     harbour-$${NAME}.png \
@@ -159,12 +167,6 @@ equals(PREFIX, "openrepos") {
     desktop.extra = sed s/harbour/openrepos/g harbour-$${NAME}.desktop > $${TARGET}.desktop
     desktop.CONFIG += no_check_exist
 }
-
-# D-Bus interfaces
-DBUS_INTERFACES += transferengine
-transferengine.files = src/org.nemo.transferengine.xml
-transferengine.header_flags = -N -c OrgNemoTransferEngine -i transfermethodinfo.h
-transferengine.source_flags = -N -c OrgNemoTransferEngine
 
 DBUS_INTERFACES += ofonomanager
 ofonomanager.files = src/org.ofono.Manager.xml

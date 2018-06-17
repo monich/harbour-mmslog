@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2014-2016 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2018 Jolla Ltd.
+  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
@@ -65,14 +66,29 @@ SilicaListView {
         id: backgroundItem
         width: root.width
 
+        Image {
+            id: icon
+
+            x: Theme.horizontalPageMargin
+            anchors.verticalCenter: parent.verticalCenter
+            source: accountIcon ? accountIcon :
+                transferMethodsModel.accountIconSupported ? "image://theme/icon-m-share" : ""
+            visible: transferMethodsModel.accountIconSupported
+        }
+
         Label {
             id: displayNameLabel
+
             text: displayName
             color: backgroundItem.highlighted ? Theme.highlightColor : Theme.primaryColor
             truncationMode: TruncationMode.Fade
-            x: Theme.paddingLarge
-            anchors.verticalCenter: parent.verticalCenter
-            width: Math.min(implicitWidth, parent.width - 2*Theme.paddingLarge)
+            x: Theme.horizontalPageMargin
+            anchors {
+                left: icon.visible ? icon.right : parent.left
+                leftMargin: icon.visible ? Theme.paddingMedium : Theme.horizontalPageMargin
+                verticalCenter: parent.verticalCenter
+            }
+            width: Math.min(implicitWidth, parent.width - 2*Theme.horizontalPageMargin)
         }
 
         Label {
@@ -84,7 +100,7 @@ SilicaListView {
                 left: displayNameLabel.right
                 leftMargin: Theme.paddingSmall
                 right: parent.right
-                rightMargin: Theme.paddingLarge
+                rightMargin: Theme.horizontalPageMargin
                 verticalCenter: parent.verticalCenter
             }
             visible: text.length > 0
@@ -105,15 +121,30 @@ SilicaListView {
     }
 
     footer: BackgroundItem {
+        id: addItem
+
+        Image {
+            id: addAccountIcon
+
+            x: Theme.horizontalPageMargin
+            anchors.verticalCenter: parent.verticalCenter
+            source: transferMethodsModel.accountIconSupported ?
+                ("image://theme/icon-m-add" + (addItem.highlighted ? "?" + Theme.highlightColor : "")) : ""
+            visible: transferMethodsModel.accountIconSupported
+        }
+
         Label {
+            //: Share list item
             //% "Add account"
             text: qsTrId("mmslog-sharemethodlist-add-account")
             x: Theme.horizontalPageMargin
-            anchors.verticalCenter: parent.verticalCenter
+            anchors {
+                left: addAccountIcon.visible ? addAccountIcon.right : parent.left
+                leftMargin: addAccountIcon.visible ? Theme.paddingMedium : Theme.horizontalPageMargin
+                verticalCenter: parent.verticalCenter
+            }
             color: highlighted ? Theme.highlightColor : Theme.primaryColor
         }
-        onClicked: {
-            settings.call("showAccounts", undefined)
-        }
+        onClicked: settings.call("showAccounts", undefined)
     }
 }

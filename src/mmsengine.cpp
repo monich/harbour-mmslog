@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2018 Jolla Ltd.
+  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
@@ -31,7 +32,8 @@
 
 #include "mmsengine.h"
 #include "mmsenginelog.h"
-#include "mmsdebug.h"
+
+#include "HarbourDebug.h"
 
 #include <QDir>
 
@@ -60,7 +62,7 @@ MMSEngine::MMSEngine(QString aTempDir, QObject* aParent) :
 
 MMSEngine::~MMSEngine()
 {
-    LOG("terminating");
+    HDEBUG("terminating");
     stopLogging();
 }
 
@@ -90,7 +92,7 @@ void MMSEngine::killEngine()
         if (pid) {
             QString exe = QFile::symLinkTarget(proc.filePath(entry).append("/exe"));
             if (!exe.isEmpty() && QFile::exists(exe) && exe == MMS_ENGINE) {
-                LOG("MMS engine already running, pid" << pid);
+                HDEBUG("MMS engine already running, pid" << pid);
                 kill(pid, SIGTERM);
                 break;
             }
@@ -109,11 +111,11 @@ MMSEngineLog* MMSEngine::startEngine()
         if (!grantpt(pty) &&
             !unlockpt(pty) &&
             (ptyname = ptsname(pty)) != NULL) {
-            LOG("pty =" << ptyname);
+            HDEBUG("pty =" << ptyname);
             iPid = fork();
             if (iPid > 0) {
                 // Parent
-                LOG("Stared MMS engine, pid" << iPid);
+                HDEBUG("Stared MMS engine, pid" << iPid);
                 return startLogThread(iPipe = pty);
             } else if (iPid == 0) {
                 // Child
@@ -140,7 +142,7 @@ MMSEngineLog* MMSEngine::startEngine()
 void MMSEngine::processDied(int aPid, int aStatus)
 {
     if (iPid > 0 && iPid == aPid) {
-        LOG("mms-engine died, pid" << aPid <<", status" << aStatus);
+        HDEBUG("mms-engine died, pid" << aPid <<", status" << aStatus);
         iPid = -1;
         if (iPipe < 0) {
             engineDied();
@@ -150,7 +152,7 @@ void MMSEngine::processDied(int aPid, int aStatus)
 
 void MMSEngine::pipeClosed(int aPipe)
 {
-    LOG("pipe" << aPipe << "closed");
+    HDEBUG("pipe" << aPipe << "closed");
     if (iPipe >= 0 && iPipe == aPipe) {
         close(iPipe);
         iPipe = -1;
@@ -187,7 +189,7 @@ void MMSEngine::restart()
 
 void MMSEngine::forward(QString aMessage)
 {
-    LOG(aMessage);
+    HDEBUG(aMessage);
     emit message(aMessage, true);
 }
 

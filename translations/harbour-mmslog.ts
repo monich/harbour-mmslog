@@ -28,6 +28,7 @@
     </message>
     <message id="mmslog-sharemethodlist-add-account">
         <source>Add account</source>
+        <extracomment>Share list item</extracomment>
         <translation>Add account</translation>
     </message>
     <message id="mmslog-sharepage-header">

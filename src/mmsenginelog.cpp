@@ -1,12 +1,13 @@
 /*
-  Copyright (C) 2014-2015 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2018 Jolla Ltd.
+  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
+
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
     * Redistributions in binary form must reproduce the above copyright
@@ -30,7 +31,8 @@
 */
 
 #include "mmsenginelog.h"
-#include "mmsdebug.h"
+
+#include "HarbourDebug.h"
 
 #include <QTextCodec>
 #include <QTextDecoder>
@@ -49,7 +51,7 @@ void MMSEngineLog::run()
     QString line;
     QTextCodec* codec = QTextCodec::codecForName("UTF-8");
     QTextDecoder* decoder = codec->makeDecoder();
-    LOG("Receive thread" << iPipe << "started");
+    HDEBUG("Receive thread" << iPipe << "started");
     while (read(iPipe, &buf, 1) > 0) {
         decoder->toUnicode(&line, &buf, 1);
         if (line.endsWith("\n")) {
@@ -58,12 +60,12 @@ void MMSEngineLog::run()
             line.clear();
         }
     }
-    LOG(strerror(errno));
+    HDEBUG(strerror(errno));
     if (!line.isEmpty()) {
         do line.truncate(line.length()-1); while (line.endsWith("\n"));
         emit message(line);
     }
     delete decoder;
     emit done(iPipe);
-    LOG("Receive thread" << iPipe << "exiting");
+    HDEBUG("Receive thread" << iPipe << "exiting");
 }
