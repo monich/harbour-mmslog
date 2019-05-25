@@ -8,6 +8,7 @@
       <arg name="modems" type="a(oa{sv})" direction="out"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="OfonoObjectPathPropertiesList"/>
     </method>
+    <!--
     <signal name="ModemAdded">
       <arg name="path" type="o"/>
       <arg name="properties" type="a{sv}"/>
@@ -16,5 +17,6 @@
     <signal name="ModemRemoved">
       <arg name="path" type="o"/>
     </signal>
+    -->
   </interface>
 </node>
