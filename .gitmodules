@@ -3,7 +3,7 @@
 	url = https://git.merproject.org/mer-core/libdbuslog.git
 [submodule "libglibutil"]
 	path = src/libglibutil
-	url = https://git.merproject.org/mer-core/libglibutil.git
+	url = https://github.com/monich/libglibutil.git
 [submodule "harbour-lib"]
 	path = src/harbour-lib
 	url = https://github.com/monich/harbour-lib.git
