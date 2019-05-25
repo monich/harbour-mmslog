@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.15
+Version:    1.0.16
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -57,6 +57,9 @@ desktop-file-install --delete-original \
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog
+* Sat May 25 2019 Slava Monich <slava.monich@jolla.com> 1.0.16
+- Fixed a problem with killing mms-engine in Sailfish OS 3.0.3
+
 * Mon Jun 18 2018 Slava Monich <slava.monich@jolla.com> 1.0.15
 - Freshened up the list of sharing methods
 - Make the log files owned by nemo:nemo
