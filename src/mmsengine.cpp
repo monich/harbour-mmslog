@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2014-2019 Jolla Ltd.
- * Copyright (C) 2014-2019 Slava Monich <slava.monich@jolla.com>
+ * Copyright (C) 2014-2020 Jolla Ltd.
+ * Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
  *
  * You may use this file under the terms of BSD license as follows:
  *
@@ -38,6 +38,8 @@
 #include "HarbourDebug.h"
 
 #include <QDir>
+#include <QDBusMessage>
+#include <QDBusConnection>
 
 #include <errno.h>
 #include <unistd.h>
@@ -45,8 +47,10 @@
 #include <signal.h>
 #include <sys/prctl.h>
 
+#define MMS_ENGINE_BUS QDBusConnection::systemBus()
 #define MMS_ENGINE "/usr/sbin/mms-engine"
 #define MMS_ENGINE_NAME "org.nemomobile.MmsEngine"
+#define MMS_ENGINE_IFACE "org.nemomobile.MmsEngine"
 #define MMS_ENGINE_RESTART_DELAY (1000)
 #define MMS_ENGINE_MAX_RESTARTS  (10)
 
@@ -91,7 +95,12 @@ void MMSEngine::killEngine()
     DAPeer* peer = da_peer_get(DA_BUS_SYSTEM, MMS_ENGINE_NAME);
     if (peer) {
         HDEBUG("MMS engine already running, pid" << peer->pid);
-        if (kill(peer->pid, SIGTERM) < 0) {
+
+        /* Try to stop it with a D-Bus request (works wince mms-engine 1.0.70) */
+        if (MMS_ENGINE_BUS.call(QDBusMessage::createMethodCall(MMS_ENGINE_NAME, "/",
+            MMS_ENGINE_IFACE, "exit")).type() == QDBusMessage::ReplyMessage) {
+            HDEBUG("MMS engine stopped over D-Bus");
+        } else if (kill(peer->pid, SIGTERM) < 0) {
             HWARN("Failed to kill MMS engine:" << strerror(errno));
         }
     }
