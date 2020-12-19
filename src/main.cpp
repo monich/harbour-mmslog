@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2018 Jolla Ltd.
-  Copyright (C) 2014-2018 Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2020 Jolla Ltd.
+  Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -8,14 +8,14 @@
   modification, are permitted provided that the following conditions
   are met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of Jolla Ltd nor the names of its contributors may
-      be used to endorse or promote products derived from this software
-      without specific prior written permission.
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    3. Neither the names of the copyright holders nor the names of its
+       contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -37,7 +37,6 @@
 
 #include "HarbourDebug.h"
 #include "HarbourSigChildHandler.h"
-#include "HarbourTransferMethodInfo.h"
 #include "HarbourTransferMethodsModel.h"
 
 #include <sailfishapp.h>
@@ -52,22 +51,6 @@
 #include <sys/fsuid.h>
 
 #define PLUGIN_PREFIX "harbour.mmslog"
-
-static void register_types(const char* uri, int v1 = 1, int v2 = 0)
-{
-    qmlRegisterType<HarbourTransferMethodsModel>(uri, v1, v2, "TransferMethodsModel");
-}
-
-static bool load_transferengine_translations(QTranslator* tr, QLocale locale)
-{
-    if (tr->load(locale, "sailfish_transferengine_plugins", "-",
-        "/usr/share/translations")) {
-        return true;
-    } else {
-        HDEBUG("Failed to load transferengine plugin translator for" << locale);
-        return false;
-    }
-}
 
 static void save_disk_usage(QString dir)
 {
@@ -89,7 +72,6 @@ int main(int argc, char *argv[])
     QGuiApplication* app = SailfishApp::application(argc, argv);
     HarbourTransferMethodInfo2::registerTypes();
     OfonoLogger::registerType();
-    register_types(PLUGIN_PREFIX, 1, 0);
 
     // The application may (and should) be started with "privileged"
     // effective gid, reset file system identity to the real identity
@@ -99,7 +81,7 @@ int main(int argc, char *argv[])
 
     // Load translations
     QLocale locale;
-    QTranslator* translator = new QTranslator(app);
+    QTranslator* ts = new QTranslator(app);
 #ifdef OPENREPOS
     // OpenRepos build has settings applet
     const bool appSettingsMenu = false;
@@ -110,19 +92,19 @@ int main(int argc, char *argv[])
     const QString transDir = SailfishApp::pathTo("translations").toLocalFile();
     const QString transFile("harbour-mmslog");
 #endif
-    if (translator->load(locale, transFile, "-", transDir) ||
-        translator->load(transFile, transDir)) {
-        app->installTranslator(translator);
+    if (ts->load(locale, transFile, "-", transDir) ||
+        ts->load(transFile, transDir)) {
+        app->installTranslator(ts);
     } else {
         HDEBUG("Failed to load translator for" << locale);
-        delete translator;
+        delete ts;
     }
-    translator = new QTranslator(app);
-    if (load_transferengine_translations(translator, locale) ||
-        load_transferengine_translations(translator, QLocale("en_GB"))) {
-        app->installTranslator(translator);
+    ts = new QTranslator(app);
+    if (HarbourTransferMethodsModel::loadTranslations(ts, locale) ||
+        HarbourTransferMethodsModel::loadTranslations(ts, QLocale("en"))) {
+        app->installTranslator(ts);
     } else {
-        delete translator;
+        delete ts;
     }
 
     // Install signal handler
@@ -133,6 +115,8 @@ int main(int argc, char *argv[])
     AppSettings* settings = new AppSettings(app);
     FsIoLogModel* mmsLog = new FsIoLogModel(settings, app);
     MMSEngine* mmsEngine = new MMSEngine(mmsLog->dirName(), app);
+    HarbourTransferMethodsModel* tm = new HarbourTransferMethodsModel(app);
+    tm->setFilter(mmsLog->archiveType());
     mmsLog->connect(mmsEngine, SIGNAL(message(QString,bool)),
         SLOT(append(QString,bool)));
     if (sigChildHandler) {
@@ -148,6 +132,8 @@ int main(int argc, char *argv[])
     QQuickView* view = SailfishApp::createView();
     QQmlContext* context = view->rootContext();
     context->setContextProperty("FsIoLog", mmsLog);
+    context->setContextProperty("TransferMethodsModel", tm);
+    context->setContextProperty("AppSettings", settings);
     context->setContextProperty("AppSettings", settings);
     context->setContextProperty("AppSettingsMenu",
         QVariant::fromValue(appSettingsMenu));

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2017 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2020 Jolla Ltd.
+  Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -8,14 +8,14 @@
   modification, are permitted provided that the following conditions
   are met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of Jolla Ltd nor the names of its contributors may
-      be used to endorse or promote products derived from this software
-      without specific prior written permission.
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    3. Neither the names of the copyright holders nor the names of its
+       contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -34,8 +34,11 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import org.nemomobile.notifications 1.0
 
+import "../harbour"
+
 Page {
     id: page
+
     allowedOrientations: window.allowedOrientations
     // backNavigation has to be true when the page is pushed to the page stack
     // so that the right animation is used (consistent with the settings page)
@@ -97,35 +100,33 @@ Page {
             title: qsTrId("mmslog-sharepage-header")
         }
 
-        ShareMethodList {
+        HarbourShareMethodList {
+            id: shareMethods
+
             visible: opacity > 0
             opacity: _canShare
-            id: shareMethods
+            model: TransferMethodsModel
             source: FsIoLog.archivePath
-            filter: FsIoLog.archiveType
             type: FsIoLog.archiveType
             subject: "Jolla MMS log"
             emailTo: "mms-debug@jolla.com"
+            //: Share list item
+            //% "Add account"
+            addAccountText: qsTrId("mmslog-sharemethodlist-add-account")
             Behavior on opacity { FadeAnimation {} }
             anchors {
                 top: header.bottom
                 left: parent.left
-                right: _portrait ? parent.right : warning.left
-                rightMargin: _portrait ? 0 : Theme.paddingLarge
-                bottom: _portrait ? warning.top : parent.bottom
-                bottomMargin: _portrait ? Theme.paddingLarge : 0
             }
             VerticalScrollDecorator {}
         }
 
         Label {
             id: warning
+
             visible: opacity > 0
             opacity: _canShare
-            width: (_portrait ? parent.width : parent.width*2/5) - 2*Theme.paddingLarge
             height: implicitHeight
-            x: _portrait ? Theme.paddingLarge : (parent.width - width - Theme.paddingLarge)
-            y: _portrait ? (_fullHeight - height - Theme.paddingLarge) : (header.y + header.height)
             Behavior on opacity { FadeAnimation {} }
             wrapMode: Text.WordWrap
             font.pixelSize: Theme.fontSizeExtraSmall
@@ -134,6 +135,53 @@ Page {
             //% "Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone."
             text: qsTrId("mmslog-sharepage-warning")
         }
+
+        states: [
+            State {
+                name: "PORTRAIT"
+                when: page.orientation === Orientation.Portrait
+                AnchorChanges {
+                    target: shareMethods
+                    anchors {
+                        right: parent.right
+                        bottom: warning.top
+                    }
+                }
+                PropertyChanges {
+                    target: shareMethods
+                    anchors.bottomMargin: Theme.paddingLarge
+                    anchors.rightMargin: 0
+                }
+                PropertyChanges {
+                    target: warning
+                    x: Theme.horizontalPageMargin
+                    y: window.height - height - Theme.paddingLarge
+                    width: parent.width - 2*Theme.horizontalPageMargin
+                }
+            },
+            State {
+                name: "LANDSCAPE"
+                when: page.orientation !== Orientation.Portrait
+                AnchorChanges {
+                    target: shareMethods
+                    anchors {
+                        right: warning.left
+                        bottom: parent.bottom
+                    }
+                }
+                PropertyChanges {
+                    target: shareMethods
+                    anchors.bottomMargin: 0
+                    anchors.rightMargin: Theme.horizontalPageMargin
+                }
+                PropertyChanges {
+                    target: warning
+                    x: parent.width - width - Theme.horizontalPageMargin
+                    y: header.y + header.height
+                    width: parent.width*2/5 - 2*Theme.horizontalPageMargin
+                }
+            }
+        ]
     }
 
     Column {
@@ -143,13 +191,14 @@ Page {
         spacing: Theme.paddingLarge
         Behavior on opacity { FadeAnimation {} }
         BusyIndicator {
-            id: busy
+            anchors.horizontalCenter: parent.horizontalCenter
             size: BusyIndicatorSize.Large
             running: !_canShare
         }
         Label {
-            anchors.horizontalCenter: busy.horizontalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
+            color: Theme.highlightColor
             //% "Please wait"
             text: qsTrId("mmslog-sharepage-please-wait")
         }

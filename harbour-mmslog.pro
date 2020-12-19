@@ -14,6 +14,7 @@ app_settings {
 }
 
 TARGET = $${PREFIX}-$${NAME}
+
 QT += dbus
 CONFIG += sailfishapp link_pkgconfig
 PKGCONFIG += mlite5 sailfishapp gio-2.0 gio-unix-2.0 glib-2.0
@@ -24,9 +25,12 @@ CONFIG(debug, debug|release) {
   DEFINES += DEBUG HARBOUR_DEBUG
 }
 
+TARGET_DATA_DIR = /usr/share/$${TARGET}
+
 HARBOUR_LIB = src/harbour-lib
 HARBOUR_LIB_INCLUDE = $${HARBOUR_LIB}/include
 HARBOUR_LIB_SRC = $${HARBOUR_LIB}/src
+HARBOUR_LIB_QML = $${HARBOUR_LIB}/qml
 
 LIBGLIBUTIL = src/libglibutil
 LIBGLIBUTIL_SRC = $${LIBGLIBUTIL}/src
@@ -151,6 +155,14 @@ for(s, ICON_SIZES) {
     INSTALLS += $${icon_target}
 }
 
+# harbour-lib QML components
+HARBOUR_QML_COMPONENTS = \
+    $${HARBOUR_LIB_QML}/HarbourShareMethodList.qml
+
+qml_components.files = $${HARBOUR_QML_COMPONENTS}
+qml_components.path = $${TARGET_DATA_DIR}/qml/harbour
+INSTALLS += qml_components
+
 # Settings
 app_settings {
     settings_json.files = settings/$${TARGET}.json
@@ -163,7 +175,7 @@ app_settings {
 }
 
 settings_qml.files = settings/*.qml
-settings_qml.path = /usr/share/$${TARGET}/qml/settings/
+settings_qml.path = $${TARGET_DATA_DIR}/qml/settings/
 INSTALLS += settings_qml
 
 # Priveleges
