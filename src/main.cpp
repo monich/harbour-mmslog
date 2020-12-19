@@ -73,12 +73,6 @@ int main(int argc, char *argv[])
     HarbourTransferMethodInfo2::registerTypes();
     OfonoLogger::registerType();
 
-    // The application may (and should) be started with "privileged"
-    // effective gid, reset file system identity to the real identity
-    // of the process so that files are owned by nemo:nemo
-    setfsuid(getuid());
-    setfsgid(getgid());
-
     // Load translations
     QLocale locale;
     QTranslator* ts = new QTranslator(app);
