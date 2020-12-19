@@ -1,6 +1,6 @@
 Name:       harbour-mmslog
 Summary:    MMS Logger
-Version:    1.0.16
+Version:    1.0.17
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -56,6 +56,10 @@ desktop-file-install --delete-original \
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %changelog
+* Sat Dec 19 2020 Slava Monich <slava.monich@jolla.com> 1.0.17
+- Resolved another issue with killing mms-engine on latest Sailfish OS
+- Fixed E-mail sharing on latest Sailfish OS
+
 * Sat May 25 2019 Slava Monich <slava.monich@jolla.com> 1.0.16
 - Fixed a problem with killing mms-engine in Sailfish OS 3.0.3
 
