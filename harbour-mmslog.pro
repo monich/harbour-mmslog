@@ -70,11 +70,13 @@ SOURCES += \
 HEADERS += \
     $${HARBOUR_LIB_INCLUDE}/HarbourDebug.h \
     $${HARBOUR_LIB_INCLUDE}/HarbourSigChildHandler.h \
+    $${HARBOUR_LIB_INCLUDE}/HarbourSystemInfo.h \
     $${HARBOUR_LIB_INCLUDE}/HarbourTransferMethodInfo.h \
     $${HARBOUR_LIB_INCLUDE}/HarbourTransferMethodsModel.h
 
 SOURCES += \
     $${HARBOUR_LIB_SRC}/HarbourSigChildHandler.cpp \
+    $${HARBOUR_LIB_SRC}/HarbourSystemInfo.cpp \
     $${HARBOUR_LIB_SRC}/HarbourTransferMethodInfo.cpp \
     $${HARBOUR_LIB_SRC}/HarbourTransferMethodsModel.cpp
 
@@ -109,6 +111,7 @@ OTHER_FILES += \
     qml/main.qml \
     qml/cover/*.qml \
     qml/pages/*.qml \
+    qml/pages/images/*.svg \
     settings/*.qml \
     settings/harbour-$${NAME}.json \
     icons/*.svg \
@@ -157,6 +160,7 @@ for(s, ICON_SIZES) {
 
 # harbour-lib QML components
 HARBOUR_QML_COMPONENTS = \
+    $${HARBOUR_LIB_QML}/HarbourHighlightIcon.qml \
     $${HARBOUR_LIB_QML}/HarbourShareMethodList.qml
 
 qml_components.files = $${HARBOUR_QML_COMPONENTS}

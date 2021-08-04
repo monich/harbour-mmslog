@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2020 Jolla Ltd.
-  Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2021 Jolla Ltd.
+  Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -37,6 +37,7 @@
 
 #include "HarbourDebug.h"
 #include "HarbourSigChildHandler.h"
+#include "HarbourSystemInfo.h"
 #include "HarbourTransferMethodsModel.h"
 
 #include <sailfishapp.h>
@@ -110,6 +111,7 @@ int main(int argc, char *argv[])
     FsIoLogModel* mmsLog = new FsIoLogModel(settings, app);
     MMSEngine* mmsEngine = new MMSEngine(mmsLog->dirName(), app);
     HarbourTransferMethodsModel* tm = new HarbourTransferMethodsModel(app);
+    HarbourSystemInfo* si = new HarbourSystemInfo(app);
     tm->setFilter(mmsLog->archiveType());
     mmsLog->connect(mmsEngine, SIGNAL(message(QString,bool)),
         SLOT(append(QString,bool)));
@@ -127,7 +129,7 @@ int main(int argc, char *argv[])
     QQmlContext* context = view->rootContext();
     context->setContextProperty("FsIoLog", mmsLog);
     context->setContextProperty("TransferMethodsModel", tm);
-    context->setContextProperty("AppSettings", settings);
+    context->setContextProperty("SystemInfo", si);
     context->setContextProperty("AppSettings", settings);
     context->setContextProperty("AppSettingsMenu",
         QVariant::fromValue(appSettingsMenu));

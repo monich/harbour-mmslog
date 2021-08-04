@@ -35,6 +35,11 @@
         <source>Pack and send</source>
         <translation>Paketera och sänd</translation>
     </message>
+    <message id="mmslog-sharepage-sharing_broken">
+        <source>In-app sharing is not available in this version of Sailfish OS. Use the pulley menu to save tarball to the documents folder.</source>
+        <extracomment>Info label displayed instead of sharing method list</extracomment>
+        <translation type="unfinished">Delning i appen är inte tillgänglig för den här versionen av Sailfish OS. Använd remskivmenyn för att spara tarball i dokumentmappen.</translation>
+    </message>
     <message id="mmslog-sharepage-warning">
         <source>Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone.</source>
         <translation>Notera att viss information i detta arkiv kan anses vara av privat natur. Om du vill veta vad du är på väg att skicka, kan du skicka det till dig själv först och sedan skicka filen vidare till mms-debug@jolla.com, från din dator. Om du litar på Jolla, kan du naturligtvis skicka den direkt till Jolla från din telefon.</translation>

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2020 Jolla Ltd.
-  Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2021 Jolla Ltd.
+  Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -42,10 +42,12 @@ Page {
     allowedOrientations: window.allowedOrientations
     // backNavigation has to be true when the page is pushed to the page stack
     // so that the right animation is used (consistent with the settings page)
-    backNavigation: _canShare || (status === PageStatus.Activating || status === PageStatus.Inactive)
+    backNavigation: _readyToShare || (status === PageStatus.Activating || status === PageStatus.Inactive)
     // Don't show the back indicator while the push animation is active
-    showNavigationIndicator: _canShare && (status === PageStatus.Active || status === PageStatus.Deactivating)
-    property bool _canShare: !FsIoLog.packing && !FsIoLog.saving && !minWaitTimer.running
+    showNavigationIndicator: _readyToShare && (status === PageStatus.Active || status === PageStatus.Deactivating)
+    readonly property string _sharingApiVersion: SystemInfo.packageVersion("declarative-transferengine-qt5")
+    readonly property bool _sharingBroken: SystemInfo.compareVersions(_sharingApiVersion, "0.4.0") >= 0 // QML API break
+    property bool _readyToShare: !FsIoLog.packing && !FsIoLog.saving && !minWaitTimer.running
     property bool _portrait: page.orientation === Orientation.Portrait
     property real _fullHeight: _portrait ? window.height : window.width
 
@@ -80,7 +82,7 @@ Page {
         contentHeight: parent.height
 
         PullDownMenu {
-            visible: _canShare || active
+            visible: _readyToShare || active
             MenuItem {
                 //% "Save to documents"
                 text: qsTrId("mmslog-sharepage-pm-save-to-documents")
@@ -100,32 +102,74 @@ Page {
             title: qsTrId("mmslog-sharepage-header")
         }
 
-        HarbourShareMethodList {
+        Item {
             id: shareMethods
-
-            visible: opacity > 0
-            opacity: _canShare
-            model: TransferMethodsModel
-            source: FsIoLog.archivePath
-            type: FsIoLog.archiveType
-            subject: "Jolla MMS log"
-            emailTo: "mms-debug@jolla.com"
-            //: Share list item
-            //% "Add account"
-            addAccountText: qsTrId("mmslog-sharemethodlist-add-account")
-            Behavior on opacity { FadeAnimation {} }
             anchors {
                 top: header.bottom
                 left: parent.left
             }
-            VerticalScrollDecorator {}
+            width: parent.width
+            visible: opacity > 0
+            opacity: _readyToShare
+            Behavior on opacity { FadeAnimation {} }
+
+            Loader {
+                active: _sharingBroken
+                anchors.fill: parent
+                sourceComponent: Component {
+                    Item {
+                        anchors.fill: parent
+
+                        InfoLabel {
+                            id: sharingBrokenInfo
+                            //: Info label displayed instead of sharing method list
+                            //% "In-app sharing is not available in this version of Sailfish OS. Use the pulley menu to save tarball to the documents folder."
+                            text: qsTrId("mmslog-sharepage-sharing_broken")
+                        }
+                        Item {
+                            anchors {
+                                left: parent.left
+                                right: parent.right
+                                top: sharingBrokenInfo.bottom
+                                bottom: parent.bottom
+                            }
+                            HarbourHighlightIcon {
+                                anchors.centerIn: parent
+                                sourceSize.height: Math.min(Math.floor(parent.height/2), Theme.itemSizeSmall)
+                                visible: height >= Theme.itemSizeSmall // Too small would look too stupid
+                                source: "images/shrug.svg"
+                            }
+                        }
+                    }
+                }
+            }
+
+            Loader {
+                active: !_sharingBroken
+                anchors.fill: parent
+                sourceComponent: Component {
+                    HarbourShareMethodList {
+                        visible: opacity > 0
+                        opacity: _readyToShare
+                        model: TransferMethodsModel
+                        source: FsIoLog.archivePath
+                        type: FsIoLog.archiveType
+                        subject: "Jolla MMS log"
+                        emailTo: "mms-debug@jolla.com"
+                        //: Share list item
+                        //% "Add account"
+                        addAccountText: qsTrId("mmslog-sharemethodlist-add-account")
+                        VerticalScrollDecorator {}
+                    }
+                }
+            }
         }
 
         Label {
             id: warning
 
             visible: opacity > 0
-            opacity: _canShare
+            opacity: _readyToShare
             height: implicitHeight
             Behavior on opacity { FadeAnimation {} }
             wrapMode: Text.WordWrap
@@ -186,14 +230,14 @@ Page {
 
     Column {
         visible: opacity > 0
-        opacity: _canShare ? 0 : 1
+        opacity: _readyToShare ? 0 : 1
         anchors.centerIn: parent
         spacing: Theme.paddingLarge
         Behavior on opacity { FadeAnimation {} }
         BusyIndicator {
             anchors.horizontalCenter: parent.horizontalCenter
             size: BusyIndicatorSize.Large
-            running: !_canShare
+            running: !_readyToShare
         }
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
