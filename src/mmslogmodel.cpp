@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2014-2020 Jolla Ltd.
-  Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2014-2021 Jolla Ltd.
+  Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -302,14 +302,8 @@ void FsIoLogModel::pack()
     iPid = fork();
     if (iPid > 0) {
         // Parent
-        HDEBUG("Tar done, pid" << aPid << "status" << aStatus);
-         const QByteArray tarball(iArchivePath.toLocal8Bit());
-         if (chown(tarball.constData(), getuid(), getgid()) < 0) {
-             HWARN("Failed to chown" << tarball.constData() << ":"
-                 << strerror(errno));
-         }
-         iPid = -1;
-         packingChanged();
+        HDEBUG("Tar started, pid" << iPid);
+        packingChanged();
     } else if (iPid == 0) {
         // Child
         sleep(1); // To improve parent's chance to finish the flush
@@ -323,6 +317,11 @@ void FsIoLogModel::processDied(int aPid, int aStatus)
 {
     if (iPid > 0 && iPid == aPid) {
         HDEBUG("Tar done, pid" << aPid <<", status" << aStatus);
+        const QByteArray tarball(iArchivePath.toLocal8Bit());
+        if (chown(tarball.constData(), getuid(), getgid()) < 0) {
+            HWARN("Failed to chown" << tarball.constData() << ":"
+                << strerror(errno));
+        }
         iPid = -1;
         packingChanged();
     }
