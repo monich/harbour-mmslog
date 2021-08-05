@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2015-2017 Jolla Ltd.
-  Contact: Slava Monich <slava.monich@jolla.com>
+  Copyright (C) 2015-2021 Jolla Ltd.
+  Copyright (C) 2015-2021 Slava Monich <slava.monich@jolla.com>
 
   You may use this file under the terms of BSD license as follows:
 
@@ -8,14 +8,14 @@
   modification, are permitted provided that the following conditions
   are met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of Jolla Ltd nor the names of its contributors may
-      be used to endorse or promote products derived from this software
-      without specific prior written permission.
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    3. Neither the names of the copyright holders nor the names of its
+       contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -37,6 +37,11 @@ import org.nemomobile.configuration 1.0
 Page {
     readonly property string rootPath: "/apps/harbour-mmslog/"
     property alias title: pageHeader.title
+    property bool inApp
+
+    // jolla-settings expects these properties:
+    property var applicationName
+    property var applicationIcon
 
     SilicaFlickable {
         anchors.fill: parent
@@ -48,8 +53,28 @@ Page {
 
             PageHeader {
                 id: pageHeader
-                //% "MMS Logger"
-                title: qsTrId("mmslog-settings-page-header")
+                rightMargin: Theme.horizontalPageMargin + (appIcon.visible ? (height - appIcon.padding) : 0)
+                title: applicationName ? applicationName :
+                    //: Settings page title (app name)
+                    //% "MMS Logger"
+                    qsTrId("mmslog-settings-page-header")
+                description: inApp ? "" :
+                    //: Settings page header description (app version)
+                    //% "Version %1"
+                    qsTrId("mmslog-settings-version").arg("1.0.17")
+
+                Image {
+                    id: appIcon
+                    readonly property int padding: Theme.paddingLarge
+                    readonly property int size: pageHeader.height - 2 * padding
+                    x: pageHeader.width - width - Theme.horizontalPageMargin
+                    y: padding
+                    width: size
+                    height: size
+                    sourceSize: Qt.size(size,size)
+                    source: applicationIcon ? applicationIcon : ""
+                    visible: appIcon.status === Image.Ready
+                }
             }
 
             Slider {

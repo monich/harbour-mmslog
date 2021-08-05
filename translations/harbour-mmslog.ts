@@ -62,7 +62,13 @@
     </message>
     <message id="mmslog-settings-page-header">
         <source>MMS Logger</source>
+        <extracomment>Settings page title (app name)</extracomment>
         <translation>MMS Logger</translation>
+    </message>
+    <message id="mmslog-settings-version">
+        <source>Version %1</source>
+        <extracomment>Settings page header description (app version)</extracomment>
+        <translation>Version %1</translation>
     </message>
     <message id="mmslog-settings-logsizelimit">
         <source>Screen buffer size</source>
