@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.17
+Version:    1.0.18
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -57,6 +57,11 @@ desktop-file-install --delete-original \
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog
+* Thu Aug  5 2021 Slava Monich <slava.monich@jolla.com> 1.0.18
+- Disabled in-app sharing for Sailfish OS >= 4.2
+- Tweaked setting page to support latest jolla-settings features
+- Freshened up app icon
+
 * Sat Dec 19 2020 Slava Monich <slava.monich@jolla.com> 1.0.17
 - Resolved another issue with killing mms-engine on latest Sailfish OS
 - Fixed E-mail sharing on latest Sailfish OS
@@ -87,7 +92,7 @@ desktop-file-install --delete-original \
 * Fri Sep  9 2016 Slava Monich <slava.monich@jolla.com> 1.0.9
 - Make font size configurable
 
-* Mon Sep 06 2016 Slava Monich <slava.monich@jolla.com> 1.0.8
+* Tue Sep  6 2016 Slava Monich <slava.monich@jolla.com> 1.0.8
 - Added app settings and build for openrepos
 
 * Wed Jul 20 2016 Slava Monich <slava.monich@jolla.com> 1.0.7

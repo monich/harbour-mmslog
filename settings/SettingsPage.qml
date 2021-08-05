@@ -61,7 +61,7 @@ Page {
                 description: inApp ? "" :
                     //: Settings page header description (app version)
                     //% "Version %1"
-                    qsTrId("mmslog-settings-version").arg("1.0.17")
+                    qsTrId("mmslog-settings-version").arg("1.0.18")
 
                 Image {
                     id: appIcon
