@@ -119,6 +119,7 @@ Page {
             delegate: BackgroundItem {
                 width: parent.width
                 height: textLabel.height
+                enabled: timeLabel.text.length > 0 || textLabel.text.length > 0
                 Label {
                     id: timeLabel
                     text: timestamp
@@ -152,7 +153,8 @@ Page {
                     }
                 }
                 onPressAndHold: {
-                    Clipboard.text = timeLabel.text + " " + textLabel.text
+                    Clipboard.text = (timeLabel.text.length > 0) ?
+                        (timeLabel.text + " " + textLabel.text) : textLabel.text
                     clipboardNotification.publish()
                 }
             }
