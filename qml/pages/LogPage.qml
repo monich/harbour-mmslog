@@ -34,18 +34,11 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Page {
-    id: page
-    allowedOrientations: window.allowedOrientations
-    property bool _clear
-
     function packAndShare() {
         FsIoLog.pack()
-        pageStack.push(sharePageComponent)
-    }
-
-    Component {
-        id: sharePageComponent
-        SharePage {}
+        pageStack.push(Qt.resolvedUrl("SharePage.qml"), {
+            allowedOrientations: allowedOrientations,
+        })
     }
 
     SilicaFlickable {

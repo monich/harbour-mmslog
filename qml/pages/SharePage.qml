@@ -39,7 +39,6 @@ import "../harbour"
 Page {
     id: page
 
-    allowedOrientations: window.allowedOrientations
     // backNavigation has to be true when the page is pushed to the page stack
     // so that the right animation is used (consistent with the settings page)
     backNavigation: _readyToShare || (status === PageStatus.Activating || status === PageStatus.Inactive)
