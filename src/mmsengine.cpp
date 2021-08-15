@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2014-2020 Jolla Ltd.
- * Copyright (C) 2014-2020 Slava Monich <slava.monich@jolla.com>
+ * Copyright (C) 2014-2021 Jolla Ltd.
+ * Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
  *
  * You may use this file under the terms of BSD license as follows:
  *
@@ -170,7 +170,7 @@ void MMSEngine::pipeClosed(int aPipe)
 
 void MMSEngine::engineDied()
 {
-    emit message("MMS engine died", false);
+    emit warning("MMS engine died");
     if (iRestartCount < MMS_ENGINE_MAX_RESTARTS) {
         if (!iRestartTimer) {
             iRestartTimer = new QTimer(this);
@@ -193,17 +193,11 @@ void MMSEngine::restart()
     iEngineLog = startEngine();
 }
 
-void MMSEngine::forward(QString aMessage)
-{
-    HDEBUG(aMessage);
-    emit message(aMessage, true);
-}
-
 MMSEngineLog* MMSEngine::startLogThread(int aDescriptor)
 {
     MMSEngineLog* logThread = new MMSEngineLog(aDescriptor);
     connect(logThread, SIGNAL(message(QString)),
-        SLOT(forward(QString)), Qt::QueuedConnection);
+        SIGNAL(logMessage(QString)), Qt::QueuedConnection);
     connect(logThread, SIGNAL(done(int)),
         SLOT(pipeClosed(int)), Qt::QueuedConnection);
     logThread->start();

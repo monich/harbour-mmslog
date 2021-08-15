@@ -122,7 +122,11 @@ Page {
                 Label {
                     id: timeLabel
                     text: timestamp
-                    font.pixelSize: view.textSize
+                    color: model.highlight ? Theme.highlightColor : Theme.primaryColor
+                    font {
+                        pixelSize: view.textSize
+                        bold: model.highlight
+                    }
                     anchors {
                         top: parent.top
                         left: parent.left
@@ -133,8 +137,12 @@ Page {
                 Label {
                     id: textLabel
                     text: plaintext
-                    font.pixelSize: view.textSize
                     wrapMode: Text.WordWrap
+                    color: model.highlight ? Theme.highlightColor : Theme.primaryColor
+                    font {
+                        pixelSize: view.textSize
+                        bold: model.highlight
+                    }
                     anchors {
                         top: parent.top
                         left: timeLabel.right

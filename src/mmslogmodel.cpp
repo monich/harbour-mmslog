@@ -1,39 +1,40 @@
 /*
-  Copyright (C) 2014-2021 Jolla Ltd.
-  Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
-
-  You may use this file under the terms of BSD license as follows:
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
-
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
-    3. Neither the names of the copyright holders nor the names of its
-       contributors may be used to endorse or promote products derived
-       from this software without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS
-  BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
-  THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright (C) 2014-2021 Jolla Ltd.
+ * Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
+ *
+ * You may use this file under the terms of BSD license as follows:
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *   3. Neither the names of the copyright holders nor the names of its
+ *      contributors may be used to endorse or promote products derived
+ *      from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "mmslogmodel.h"
 #include "appsettings.h"
 
 #include "HarbourDebug.h"
+#include "HarbourProcessState.h"
 
 #include <QDateTime>
 #include <QRunnable>
@@ -51,7 +52,8 @@
 
 enum FsIoLogRole {
     TimeRole = Qt::UserRole,
-    TextRole
+    TextRole,
+    HighlightRole
 };
 
 // ==========================================================================
@@ -60,18 +62,25 @@ enum FsIoLogRole {
 
 class FsIoLogModel::Entry {
 public:
-    Entry(QString aMessage, bool aFromMmsEngine);
+    enum {
+        FROM_MMS_ENGINE = 0x01,
+        HIGHLIGHT = 0x02
+    };
+
+    Entry(QString aMessage, int aFlags = 0);
     QString iMessage;
     QString iTimestamp;
     QString iText;
+    bool iHighlight;
 };
 
-FsIoLogModel::Entry::Entry(QString aMessage, bool aFromMmsEngine) :
-    iMessage(aMessage)
+FsIoLogModel::Entry::Entry(QString aMessage, int aFlags) :
+    iMessage(aMessage),
+    iHighlight((aFlags & HIGHLIGHT) != 0)
 {
     // MMS engine starts each line with YYYY-MM-DD hh:mm:ss
     // Skip the date part and split time and text
-    if (aFromMmsEngine &&
+    if ((aFlags & FROM_MMS_ENGINE) &&
         aMessage.length() > 20 &&   // YYYY-MM-DD
         aMessage[0].isDigit() && aMessage[1].isDigit() &&
         aMessage[2].isDigit() && aMessage[3].isDigit() &&
@@ -152,11 +161,16 @@ FsIoLogModel::FsIoLogModel(AppSettings* aSettings, QObject* aParent) :
     connect(iSettings, SIGNAL(logSizeLimitChanged()), SLOT(updateLogSizeLimit()));
     iTempDir.setAutoRemove(true);
     HDEBUG("Temporary directory" << iTempDir.path());
+    // Do these messages below need to be localized?
+    if (!HarbourProcessState::isPrivileged()) {
+        warning(QString("This application doesn't seem to be running in privileged mode. "
+            "It may not work properly."));
+    }
     if (!QDir(iRootDir).mkpath(iRootDir)) {
-        append(QString("Failed to create ").append(iRootDir));
+        warning(QString("Failed to create %1").arg(iRootDir));
     }
     if (!iLogFile.open(QFile::Text | QFile::ReadWrite)) {
-        append(QString("Failed to open ").append(iLogFile.fileName()));
+        warning(QString("Failed to open %1").arg(iLogFile.fileName()));
     }
 }
 
@@ -179,6 +193,7 @@ QHash<int,QByteArray> FsIoLogModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[TimeRole] = "timestamp";
     roles[TextRole] = "plaintext";
+    roles[HighlightRole] = "highlight";
     return roles;
 }
 
@@ -188,7 +203,7 @@ int FsIoLogModel::rowCount(const QModelIndex&) const
     return iMessages.count() + 1;
 }
 
-QVariant FsIoLogModel::data(const QModelIndex& index, int role) const
+QVariant FsIoLogModel::data(const QModelIndex& index, int aRole) const
 {
     QVariant value;
     const int row = index.row();
@@ -196,25 +211,17 @@ QVariant FsIoLogModel::data(const QModelIndex& index, int role) const
         const int count = iMessages.count();
         if (row < count) {
             const Entry* entry = iMessages.at(row);
-            switch (role) {
-            case TimeRole:
-                value = entry->iTimestamp;
-                break;
-            case TextRole:
-                value = entry->iText;
-                break;
-            default:
-                break;
+            switch ((FsIoLogRole)aRole) {
+            case TimeRole: return entry->iTimestamp;
+            case TextRole: return entry->iText;
+            case HighlightRole: return entry->iHighlight;
             }
         } else if (row == count) {
             // Last row is empty
-            switch (role) {
+            switch ((FsIoLogRole)aRole) {
             case TimeRole:
-            case TextRole:
-                value = QString();
-                break;
-            default:
-                break;
+            case TextRole: return QString();
+            case HighlightRole: return false;
             }
         }
     }
@@ -237,19 +244,31 @@ bool FsIoLogModel::removeExtraLines(int aReserve)
     }
 }
 
-void FsIoLogModel::append(QString aMessage, bool aMmsEngineLog)
+void FsIoLogModel::append(QString aMessage, int aFlags)
 {
-    if (aMmsEngineLog) {
+    if (aFlags & Entry::FROM_MMS_ENGINE) {
         iLogFile.write(aMessage.toUtf8());
         iLogFile.write("\n");
     }
     removeExtraLines(1);
     const int count = iMessages.count();
     beginInsertRows(QModelIndex(), count+1, count+1);
-    iMessages.append(new Entry(aMessage, aMmsEngineLog));
+    iMessages.append(new Entry(aMessage, aFlags));
     endInsertRows();
     QModelIndex index(createIndex(count, 0));
     emit dataChanged(index, index);
+}
+
+void FsIoLogModel::warning(QString aMessage)
+{
+    HWARN(aMessage);
+    append(aMessage, Entry::HIGHLIGHT);
+}
+
+void FsIoLogModel::logMessage(QString aMessage)
+{
+    HDEBUG(aMessage);
+    append(aMessage, Entry::FROM_MMS_ENGINE);
 }
 
 void FsIoLogModel::clear()
@@ -257,7 +276,7 @@ void FsIoLogModel::clear()
     iLogFile.flush();
     beginResetModel();
     deleteAllMessages();
-    append("Log cleared");
+    append("Log cleared", 0);
     endResetModel();
 }
 
