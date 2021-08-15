@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
             SLOT(processDied(int,int)));
     }
 
-    // Create ans show the view
+    // Create and show the view
     QQuickView* view = SailfishApp::createView();
     QQmlContext* context = view->rootContext();
     context->setContextProperty("FsIoLog", mmsLog);
@@ -139,7 +139,8 @@ int main(int argc, char *argv[])
 
     QString dir(mmsLog->dirName());
     save_disk_usage(dir);
-    QFile::copy("/etc/sailfish-release", dir + "/sailfish-release");
+    QFile::copy("/etc/os-release", dir + "/os-release");
+    QFile::copy("/etc/hw-release", dir + "/hw-release");
     OfonoLogger* ofono = new OfonoLogger(dir, settings, app);
     ofono->connect(mmsLog, SIGNAL(flushed()), SLOT(flush()));
     int ret = app->exec();
