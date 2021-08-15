@@ -7,6 +7,11 @@
         <source>MMS</source>
         <translation>MMS</translation>
     </message>
+    <message id="mmslog-notification-copied_to_clipboard">
+        <source>Copied to clipboard</source>
+        <extracomment>Pop-up notification</extracomment>
+        <translation>Скопировано</translation>
+    </message>
     <message id="mmslog-logpage-pm-settings">
         <source>Settings</source>
         <extracomment>Pulley menu item</extracomment>
@@ -24,7 +29,7 @@
     </message>
     <message id="mmslog-logpage-title">
         <source>MMS engine log</source>
-        <translation>Журнал</translation>
+        <translation>Журнал MMS</translation>
     </message>
     <message id="mmslog-sharemethodlist-add-account">
         <source>Add account</source>
@@ -38,7 +43,7 @@
     <message id="mmslog-sharepage-sharing_broken">
         <source>In-app sharing is not available in this version of Sailfish OS. Use the pulley menu to save tarball to the documents folder.</source>
         <extracomment>Info label displayed instead of sharing method list</extracomment>
-        <translation>Увы, но в этой версии Sailfish OS ничего так просто расшарить не получится. Вы можете сохранить тарбол в документы, а дальше разбирайтесь сами, что с ним делать.</translation>
+        <translation>Увы, но в этой версии Sailfish OS ничего так просто расшарить не получится. Вы можете сохранить тарбол в документы, а дальше сами разбирайтесь, что и как с ним делать.</translation>
     </message>
     <message id="mmslog-sharepage-warning">
         <source>Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone.</source>

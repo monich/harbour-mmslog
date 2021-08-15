@@ -32,6 +32,7 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.nemomobile.notifications 1.0
 
 Page {
     function packAndShare() {
@@ -39,6 +40,20 @@ Page {
         pageStack.push(Qt.resolvedUrl("SharePage.qml"), {
             allowedOrientations: allowedOrientations,
         })
+    }
+
+    Notification {
+        id: clipboardNotification
+
+        //: Pop-up notification
+        //% "Copied to clipboard"
+        previewBody: qsTrId("mmslog-notification-copied_to_clipboard")
+        expireTimeout: 2000
+        Component.onCompleted: {
+            if ("icon" in clipboardNotification) {
+                clipboardNotification.icon = "icon-s-clipboard"
+            }
+        }
     }
 
     SilicaFlickable {
@@ -101,7 +116,7 @@ Page {
                 //% "MMS engine log"
                 title: qsTrId("mmslog-logpage-title")
             }
-            delegate: Item {
+            delegate: BackgroundItem {
                 width: parent.width
                 height: textLabel.height
                 Label {
@@ -127,6 +142,10 @@ Page {
                         leftMargin: Theme.paddingLarge
                         rightMargin: Theme.paddingLarge
                     }
+                }
+                onPressAndHold: {
+                    Clipboard.text = timeLabel.text + " " + textLabel.text
+                    clipboardNotification.publish()
                 }
             }
 

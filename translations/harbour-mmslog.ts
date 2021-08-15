@@ -7,6 +7,11 @@
         <source>MMS</source>
         <translation>MMS</translation>
     </message>
+    <message id="mmslog-notification-copied_to_clipboard">
+        <source>Copied to clipboard</source>
+        <extracomment>Pop-up notification</extracomment>
+        <translation>Copied to clipboard</translation>
+    </message>
     <message id="mmslog-logpage-pm-settings">
         <source>Settings</source>
         <extracomment>Pulley menu item</extracomment>
