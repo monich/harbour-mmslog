@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=MMS Log
+Name[ru]=MMS лог
+X-Nemo-Application-Type=silica-qt5
+Icon=openrepos-mmslog
+Exec=openrepos-mmslog
+
+[X-HarbourBackup]
+BackupConfigList=/apps/harbour-mmslog/
+
+[X-Sailjail]
+Sandboxing=Disabled

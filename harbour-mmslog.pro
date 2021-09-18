@@ -109,7 +109,7 @@ SOURCES += \
 
 OTHER_FILES += \
     harbour-$${NAME}.png \
-    harbour-$${NAME}.desktop \
+    *.desktop \
     qml/main.qml \
     qml/cover/*.qml \
     qml/pages/*.qml \
@@ -188,12 +188,6 @@ INSTALLS += settings_qml
 privileges.files = privileges/$${TARGET}
 privileges.path = /usr/share/mapplauncherd/privileges.d/
 INSTALLS += privileges
-
-# Desktop file
-equals(PREFIX, "openrepos") {
-    desktop.extra = sed s/harbour/openrepos/g harbour-$${NAME}.desktop > $${TARGET}.desktop
-    desktop.CONFIG += no_check_exist
-}
 
 DBUS_INTERFACES += ofonomanager
 ofonomanager.files = src/org.ofono.Manager.xml
