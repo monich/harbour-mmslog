@@ -40,6 +40,7 @@
 #include <QRunnable>
 
 #include <signal.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -328,6 +329,7 @@ void FsIoLogModel::pack()
         sleep(1); // To improve parent's chance to finish the flush
         execlp("tar", "tar", "-czf", qPrintable(iArchivePath), "-C",
             qPrintable(iTempDir.path()), qPrintable(iArchiveName), NULL);
+        abort();
     }
     archivePathChanged();
 }

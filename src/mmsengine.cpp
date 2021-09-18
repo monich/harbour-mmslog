@@ -41,8 +41,9 @@
 #include <QDBusMessage>
 #include <QDBusConnection>
 
-#include <errno.h>
+#include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/prctl.h>
@@ -135,7 +136,7 @@ MMSEngineLog* MMSEngine::startEngine()
                     qPrintable(iTempDir), NULL);
                 fprintf(stderr, "%s", strerror(errno));
                 fflush(stderr);
-                exit(1);
+                abort();
             } else {
                 qWarning() << "Failed to launch mms-engine";
             }

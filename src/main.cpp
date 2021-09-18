@@ -45,9 +45,10 @@
 #include <QtQuick>
 #include <QtQml>
 
-#include <fcntl.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/fsuid.h>
 
@@ -63,6 +64,7 @@ static void save_disk_usage(QString dir)
             dup2(fd, STDOUT_FILENO);
             dup2(fd, STDERR_FILENO);
             execlp("df", "-k", "/tmp", qPrintable(QDir::homePath()), NULL);
+            abort();
         }
         close(fd);
     }
