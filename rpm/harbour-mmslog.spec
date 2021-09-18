@@ -56,7 +56,7 @@ desktop-file-install --delete-original \
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %changelog
-* Sun, Aug 15 2021 Slava Monich <slava.monich@jolla.com> 1.0.19
+* Sun Aug 15 2021 Slava Monich <slava.monich@jolla.com> 1.0.19
 - Copy log text to clipboard on long tap
 
 * Thu Aug  5 2021 Slava Monich <slava.monich@jolla.com> 1.0.18
