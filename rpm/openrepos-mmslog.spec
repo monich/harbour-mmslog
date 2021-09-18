@@ -1,6 +1,6 @@
 Name:       openrepos-mmslog
 Summary:    MMS Logger
-Version:    1.0.19
+Version:    1.0.20
 Release:    1
 Group:      Applications/System
 License:    BSD
@@ -57,6 +57,9 @@ desktop-file-install --delete-original \
 %{_datadir}/jolla-settings/entries/%{name}.json
 
 %changelog
+* Sat Sep 18 2021 Slava Monich <slava.monich@jolla.com> 1.0.20
+- Opt out of sandboxing
+
 * Sun Aug 15 2021 Slava Monich <slava.monich@jolla.com> 1.0.19
 - Copy log text to clipboard on long tap
 
