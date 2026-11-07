@@ -1,34 +1,7 @@
-/*
-  Copyright (C) 2014-2021 Jolla Ltd.
-  Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
-
-  You may use this file under the terms of BSD license as follows:
-
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
-
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
-    3. Neither the names of the copyright holders nor the names of its
-       contributors may be used to endorse or promote products derived
-       from this software without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS
-  BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
-  THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// SPDX-FileCopyrightText: 2014-2026 Slava Monich <slava.monich@jolla.com>
+// SPDX-FileCopyrightText: 2026 Jolla Mobile Ltd
+// SPDX-FileCopyrightText: 2014-2021 Jolla Ltd.
+// SPDX-License-Identifier: BSD-3-Clause
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
@@ -39,16 +12,15 @@ import "../harbour"
 Page {
     id: page
 
-    // backNavigation has to be true when the page is pushed to the page stack
-    // so that the right animation is used (consistent with the settings page)
-    backNavigation: _readyToShare || (status === PageStatus.Activating || status === PageStatus.Inactive)
-    // Don't show the back indicator while the push animation is active
-    showNavigationIndicator: _readyToShare && (status === PageStatus.Active || status === PageStatus.Deactivating)
+    // For the page slide animation to kick in, the initial value of
+    // backNavigation has to be true. Once the transition has started,
+    // backNavigation is turned off until the log has been saved.
+    showNavigationIndicator: status !== PageStatus.Inactive
+    backNavigation: status === PageStatus.Inactive || _readyToShare
+
     readonly property string _sharingApiVersion: SystemInfo.packageVersion("declarative-transferengine-qt5")
-    readonly property bool _sharingBroken: SystemInfo.compareVersions(_sharingApiVersion, "0.4.0") >= 0 // QML API break
+    readonly property bool _sailfishShare: !_sharingApiVersion || SystemInfo.compareVersions(_sharingApiVersion, "0.4.0") >= 0 // QML API break
     property bool _readyToShare: !FsIoLog.packing && !FsIoLog.saving && !minWaitTimer.running
-    property bool _portrait: page.orientation === Orientation.Portrait
-    property real _fullHeight: _portrait ? window.height : window.width
 
     // The timer makes sure that animation is displayed for at least 1 second
     Timer {
@@ -113,30 +85,102 @@ Page {
             Behavior on opacity { FadeAnimation {} }
 
             Loader {
-                active: _sharingBroken
+                active: _sailfishShare
                 anchors.fill: parent
                 sourceComponent: Component {
                     Item {
                         anchors.fill: parent
 
-                        InfoLabel {
-                            id: sharingBrokenInfo
-                            //: Info label displayed instead of sharing method list
-                            //% "In-app sharing is not available in this version of Sailfish OS. Use the pulley menu to save tarball to the documents folder."
-                            text: qsTrId("mmslog-sharepage-sharing_broken")
+                        Image {
+                            id: archiveIcon
+
+                            x: Theme.horizontalPageMargin
+                            source: "image://theme/icon-m-file-archive-folder?" + Theme.secondaryColor
                         }
-                        Item {
+
+                        Column {
+                            id: fileInfo
+
                             anchors {
-                                left: parent.left
+                                left: archiveIcon.right
+                                leftMargin: Theme.paddingLarge
                                 right: parent.right
-                                top: sharingBrokenInfo.bottom
+                            }
+
+                            Label {
+                                width: parent.width
+                                text: FsIoLog.archiveFile
+                                truncationMode: TruncationMode.Fade
+                                color: Theme.secondaryColor
+                            }
+
+                            Label {
+                                readonly property int _kB: 1024
+                                readonly property int _MB: _kB*1024
+                                readonly property int _GB: _MB*1024
+                                readonly property int _TB: _GB*1024
+                                readonly property int fileSize: FsIoLog.archiveSize
+
+                                width: parent.width
+                                text: fileSize <= 0 ? "" :
+                                    //% "%1 B"
+                                    (fileSize < _kB) ? qsTrId("mmslog-sharepage-la-file_size-bytes").arg(fileSize) :
+                                    //% "%1 kB"
+                                    (fileSize < 1000*_kB) ? qsTrId("mmslog-sharepage-la-file_size-kilobytes").arg((fileSize/_kB).toLocaleString(Qt.locale(), 'f', (fileSize < 10*_kB) ? 2 : 1)) :
+                                    //% "%1 MB"
+                                    (fileSize < 1000*_MB) ? qsTrId("mmslog-sharepage-la-file_size-megabytes").arg((fileSize/_MB).toLocaleString(Qt.locale(), 'f', (fileSize < 10*_MB) ? 2 : 1)) :
+                                    //% "%1 GB"
+                                    (fileSize < 1000*_GB) ? qsTrId("mmslog-sharepage-la-file_size-gigabytes").arg((fileSize/_GB).toLocaleString(Qt.locale(), 'f', (fileSize < 10*_GB) ? 2 : 1)) :
+                                    //% "%1 TB"
+                                    qsTrId("mmslog-sharepage-la-file_size-terabytes").arg((fileSize/_TB).toLocaleString(Qt.locale(), 'f', 1))
+                                font.pixelSize: Theme.fontSizeExtraSmall
+                                color: Theme.secondaryColor
+                                opacity: 0.8
+                            }
+                        }
+
+                        Item {
+                            width: parent.width
+                            anchors {
+                                top: fileInfo.bottom
                                 bottom: parent.bottom
                             }
-                            HarbourHighlightIcon {
+
+                            Column {
                                 anchors.centerIn: parent
-                                sourceSize.height: Math.min(Math.floor(parent.height/2), Theme.itemSizeSmall)
-                                visible: height >= Theme.itemSizeSmall // Too small would look too stupid
-                                source: "images/shrug.svg"
+                                spacing: Theme.paddingLarge
+                                width: buttonWidth
+
+                                property int buttonWidth: Math.max(saveButton.implicitWidth, shareButton.implicitWidth)
+
+                                Button {
+                                    id: saveButton
+
+                                    //% "Save to documents"
+                                    text: qsTrId("mmslog-sharepage-pm-save-to-documents")
+                                    width: parent.buttonWidth
+                                    onClicked: FsIoLog.save()
+                                }
+                                Button {
+                                    id: shareButton
+
+                                    property var shareAction
+
+                                    //% "Share"
+                                    text: qsTrId("mmslog-sharepage-bt-share")
+                                    width: parent.buttonWidth
+                                    onClicked: {
+                                        if (!shareAction) {
+                                            shareAction = Qt.createQmlObject("import Sailfish.Share 1.0;ShareAction {}", page, "SailfishShare")
+                                        }
+                                        if (shareAction) {
+                                            shareAction.resources = [ FsIoLog.archiveUrl ]
+                                            shareAction.trigger()
+                                        } else {
+                                            enabled = false
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -144,7 +188,7 @@ Page {
             }
 
             Loader {
-                active: !_sharingBroken
+                active: !_sailfishShare
                 anchors.fill: parent
                 sourceComponent: Component {
                     HarbourShareMethodList {
@@ -232,13 +276,21 @@ Page {
         opacity: _readyToShare ? 0 : 1
         anchors.centerIn: parent
         spacing: Theme.paddingLarge
+        width: Math.max(busyIndicator.width, pleaseWaitLabel.width)
+
         Behavior on opacity { FadeAnimation {} }
+
         BusyIndicator {
+            id: busyIndicator
+
             anchors.horizontalCenter: parent.horizontalCenter
             size: BusyIndicatorSize.Large
             running: !_readyToShare
         }
+
         Label {
+            id: pleaseWaitLabel
+
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
             color: Theme.highlightColor

@@ -1,34 +1,7 @@
-/*
- * Copyright (C) 2014-2021 Jolla Ltd.
- * Copyright (C) 2014-2021 Slava Monich <slava.monich@jolla.com>
- *
- * You may use this file under the terms of BSD license as follows:
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   1. Redistributions of source code must retain the above copyright
- *      notice, this list of conditions and the following disclaimer.
- *   2. Redistributions in binary form must reproduce the above copyright
- *      notice, this list of conditions and the following disclaimer in the
- *      documentation and/or other materials provided with the distribution.
- *   3. Neither the names of the copyright holders nor the names of its
- *      contributors may be used to endorse or promote products derived
- *      from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
- * THE POSSIBILITY OF SUCH DAMAGE.
- */
+// SPDX-FileCopyrightText: 2014-2026 Slava Monich <slava.monich@jolla.com>
+// SPDX-FileCopyrightText: 2026 Jolla Mobile Ltd
+// SPDX-FileCopyrightText: 2014-2021 Jolla Ltd.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "mmslogmodel.h"
 #include "appsettings.h"
@@ -36,8 +9,9 @@
 #include "HarbourDebug.h"
 #include "HarbourProcessState.h"
 
-#include <QDateTime>
-#include <QRunnable>
+#include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
+#include <QtCore/QRunnable>
 
 #include <signal.h>
 #include <stdlib.h>
@@ -61,21 +35,25 @@ enum FsIoLogRole {
 // FsIoLogModel::Entry
 // ==========================================================================
 
-class FsIoLogModel::Entry {
+class FsIoLogModel::Entry
+{
 public:
     enum {
         FROM_MMS_ENGINE = 0x01,
         HIGHLIGHT = 0x02
     };
 
-    Entry(QString aMessage, int aFlags = 0);
-    QString iMessage;
+    Entry(QString, int flags = 0);
+
+    const QString iMessage;
     QString iTimestamp;
     QString iText;
-    bool iHighlight;
+    const bool iHighlight;
 };
 
-FsIoLogModel::Entry::Entry(QString aMessage, int aFlags) :
+FsIoLogModel::Entry::Entry(
+    QString aMessage,
+    int aFlags) :
     iMessage(aMessage),
     iHighlight((aFlags & HIGHLIGHT) != 0)
 {
@@ -107,25 +85,27 @@ FsIoLogModel::Entry::Entry(QString aMessage, int aFlags) :
 // FsIoLogModel::SaveTask
 // ==========================================================================
 
-class FsIoLogModel::SaveTask: public QObject, public QRunnable
+class FsIoLogModel::SaveTask:
+    public QObject,
+    public QRunnable
 {
     Q_OBJECT
 
 public:
-    SaveTask(QString aSrc, QString aDest, QObject* aParent = NULL) :
+    SaveTask(QString aSrc, QString aDest, QObject* aParent = Q_NULLPTR) :
         QObject(aParent), iSrc(aSrc), iDest(aDest) {
         setAutoDelete(false);
     }
 
 protected:
-    virtual void run();
+    void run() Q_DECL_OVERRIDE;
 
 Q_SIGNALS:
-    void done(bool aSuccess);
+    void done(bool success);
 
 private:
-    QString iSrc;
-    QString iDest;
+    const QString iSrc;
+    const QString iDest;
 };
 
 void FsIoLogModel::SaveTask::run()
@@ -144,13 +124,16 @@ void FsIoLogModel::SaveTask::run()
 // FsIoLogModel
 // ==========================================================================
 
-FsIoLogModel::FsIoLogModel(AppSettings* aSettings, QObject* aParent) :
+FsIoLogModel::FsIoLogModel(
+    AppSettings* aSettings,
+    QObject* aParent) :
     QAbstractListModel(aParent),
     iSettings(aSettings),
     iThreadPool(new QThreadPool(this)),
     iArchiveType("application/x-gzip"),
     iArchiveName(QString("mms") + QDateTime::currentDateTime().toString(Qt::ISODate).replace(":","")),
     iArchiveFile(iArchiveName + ".tar.gz"),
+    iArchiveSize(0),
     iTempDir("/tmp/mms_XXXXXX"),
     iRootDir(iTempDir.path() + "/" + iArchiveName),
     iLogFile(iRootDir + "/" LOG_FILE),
@@ -183,33 +166,43 @@ FsIoLogModel::~FsIoLogModel()
     if (!iArchivePath.isEmpty()) unlink(qPrintable(iArchivePath));
 }
 
-void FsIoLogModel::deleteAllMessages()
+void
+FsIoLogModel::deleteAllMessages()
 {
     qDeleteAll(iMessages);
     iMessages.clear();
 }
 
-QHash<int,QByteArray> FsIoLogModel::roleNames() const
+QHash<int,QByteArray>
+FsIoLogModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
+
     roles[TimeRole] = "timestamp";
     roles[TextRole] = "plaintext";
     roles[HighlightRole] = "highlight";
     return roles;
 }
 
-int FsIoLogModel::rowCount(const QModelIndex&) const
+int
+FsIoLogModel::rowCount(
+    const QModelIndex&) const
 {
     // Leave the last row empty
     return iMessages.count() + 1;
 }
 
-QVariant FsIoLogModel::data(const QModelIndex& index, int aRole) const
+QVariant
+FsIoLogModel::data(
+    const QModelIndex& aIndex,
+    int aRole) const
 {
     QVariant value;
-    const int row = index.row();
+    const int row = aIndex.row();
+
     if (row >= 0) {
         const int count = iMessages.count();
+
         if (row < count) {
             const Entry* entry = iMessages.at(row);
             switch ((FsIoLogRole)aRole) {
@@ -229,11 +222,15 @@ QVariant FsIoLogModel::data(const QModelIndex& index, int aRole) const
     return value;
 }
 
-bool FsIoLogModel::removeExtraLines(int aReserve)
+bool
+FsIoLogModel::removeExtraLines(
+    int aReserve)
 {
     const int count = iMessages.count();
+
     if (iLogSizeLimit > 0 && (count + aReserve) > iLogSizeLimit) {
         const int nremove = (count - iLogSizeLimit) + iLogRemoveCount;
+
         HDEBUG("removing last" << nremove << "lines");
         beginRemoveRows(QModelIndex(), 0, nremove-1);
         for (int i=0; i<nremove; i++) delete iMessages.at(i);
@@ -245,34 +242,44 @@ bool FsIoLogModel::removeExtraLines(int aReserve)
     }
 }
 
-void FsIoLogModel::append(QString aMessage, int aFlags)
+void
+FsIoLogModel::append(
+    QString aMessage,
+    int aFlags)
 {
     if (aFlags & Entry::FROM_MMS_ENGINE) {
         iLogFile.write(aMessage.toUtf8());
         iLogFile.write("\n");
     }
     removeExtraLines(1);
+
     const int count = iMessages.count();
+
     beginInsertRows(QModelIndex(), count+1, count+1);
     iMessages.append(new Entry(aMessage, aFlags));
     endInsertRows();
     QModelIndex index(createIndex(count, 0));
-    emit dataChanged(index, index);
+    Q_EMIT dataChanged(index, index);
 }
 
-void FsIoLogModel::warning(QString aMessage)
+void
+FsIoLogModel::warning(
+    QString aMessage)
 {
     HWARN(aMessage);
     append(aMessage, Entry::HIGHLIGHT);
 }
 
-void FsIoLogModel::logMessage(QString aMessage)
+void
+FsIoLogModel::logMessage(
+    QString aMessage)
 {
     HDEBUG(aMessage);
     append(aMessage, Entry::FROM_MMS_ENGINE);
 }
 
-void FsIoLogModel::clear()
+void
+FsIoLogModel::clear()
 {
     iLogFile.flush();
     beginResetModel();
@@ -281,39 +288,16 @@ void FsIoLogModel::clear()
     endResetModel();
 }
 
-void FsIoLogModel::flush()
+void
+FsIoLogModel::flush()
 {
     HDEBUG("flush");
     Q_EMIT flushed();
     iLogFile.flush();
 }
 
-bool FsIoLogModel::packing() const
-{
-    return iPid > 0;
-}
-
-bool FsIoLogModel::saving() const
-{
-    return iSaveTask != NULL;
-}
-
-QString FsIoLogModel::archiveFile() const
-{
-    return iArchiveFile;
-}
-
-QString FsIoLogModel::archivePath() const
-{
-    return iArchivePath;
-}
-
-QString FsIoLogModel::archiveType() const
-{
-    return iArchiveType;
-}
-
-void FsIoLogModel::pack()
+void
+FsIoLogModel::pack()
 {
     flush();
     (iArchivePath = "/tmp/").append(iArchiveFile);
@@ -323,7 +307,7 @@ void FsIoLogModel::pack()
     if (iPid > 0) {
         // Parent
         HDEBUG("Tar started, pid" << iPid);
-        packingChanged();
+        Q_EMIT packingChanged();
     } else if (iPid == 0) {
         // Child
         sleep(1); // To improve parent's chance to finish the flush
@@ -331,24 +315,34 @@ void FsIoLogModel::pack()
             qPrintable(iTempDir.path()), qPrintable(iArchiveName), NULL);
         abort();
     }
-    archivePathChanged();
+    Q_EMIT archivePathChanged();
 }
 
-void FsIoLogModel::processDied(int aPid, int aStatus)
+void
+FsIoLogModel::processDied(
+    int aPid,
+    int aStatus)
 {
     if (iPid > 0 && iPid == aPid) {
-        HDEBUG("Tar done, pid" << aPid <<", status" << aStatus);
         const QByteArray tarball(iArchivePath.toLocal8Bit());
+        const qint64 size = QFileInfo(iArchivePath).size();
+
+        HDEBUG("Tar done, pid" << aPid <<", status" << aStatus);
         if (chown(tarball.constData(), getuid(), getgid()) < 0) {
             HWARN("Failed to chown" << tarball.constData() << ":"
                 << strerror(errno));
         }
         iPid = -1;
-        packingChanged();
+        if (iArchiveSize != size) {
+            iArchiveSize = size;
+            Q_EMIT archiveSizeChanged();
+        }
+        Q_EMIT packingChanged();
     }
 }
 
-void FsIoLogModel::updateLogSizeLimit()
+void
+FsIoLogModel::updateLogSizeLimit()
 {
     iLogSizeLimit = AppSettings::DEFAULT_LOG_SIZE_LIMIT;
     iLogRemoveCount = LOG_REMOVE_DEFAULT;
@@ -371,11 +365,12 @@ void FsIoLogModel::updateLogSizeLimit()
     HDEBUG("log size limit" << iLogSizeLimit);
     if (removeExtraLines(0)) {
         QModelIndex index(createIndex(iMessages.count(), 0));
-        emit dataChanged(index, index);
+        Q_EMIT dataChanged(index, index);
     }
 }
 
-void FsIoLogModel::save()
+void
+FsIoLogModel::save()
 {
     HDEBUG(iArchivePath);
     if (!iArchivePath.isEmpty() && !iSaveTask) {
@@ -390,7 +385,9 @@ void FsIoLogModel::save()
     }
 }
 
-void FsIoLogModel::onSaveTaskDone(bool aSuccess)
+void
+FsIoLogModel::onSaveTaskDone(
+    bool aSuccess)
 {
     HDEBUG((aSuccess ? "OK" : "ERROR"));
     if (iSaveTask) {

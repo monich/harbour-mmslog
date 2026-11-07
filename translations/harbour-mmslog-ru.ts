@@ -40,11 +40,6 @@
         <source>Pack and send</source>
         <translation>Упаковка и отправка</translation>
     </message>
-    <message id="mmslog-sharepage-sharing_broken">
-        <source>In-app sharing is not available in this version of Sailfish OS. Use the pulley menu to save tarball to the documents folder.</source>
-        <extracomment>Info label displayed instead of sharing method list</extracomment>
-        <translation>Увы, но в этой версии Sailfish OS ничего так просто расшарить не получится. Вы можете сохранить тарбол в документы, а дальше сами разбирайтесь, что и как с ним делать.</translation>
-    </message>
     <message id="mmslog-sharepage-warning">
         <source>Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone.</source>
         <translation>Возможно, вы не захотите делиться с другими некоторой информацией, которую собрала эта программа. Вы можете сначала переслать файл на свой компьютер, проверить, нет ли внутри чего лишнего и отправить его по адресу mms-debug@jolla.com привычным вам способом. Если же вы доверяете Jolla, то можете отослать его в службу поддержки непосредственно с телефона.</translation>
@@ -56,6 +51,30 @@
     <message id="mmslog-sharepage-pm-save-to-documents">
         <source>Save to documents</source>
         <translation>Сохранить в документы</translation>
+    </message>
+    <message id="mmslog-sharepage-bt-share">
+        <source>Share</source>
+        <translation>Поделиться</translation>
+    </message>
+    <message id="mmslog-sharepage-la-file_size-bytes">
+        <source>%1 B</source>
+        <translation>%1 Б</translation>
+    </message>
+    <message id="mmslog-sharepage-la-file_size-kilobytes">
+        <source>%1 kB</source>
+        <translation>%1 КБ</translation>
+    </message>
+    <message id="mmslog-sharepage-la-file_size-megabytes">
+        <source>%1 MB</source>
+        <translation>%1 МБ</translation>
+    </message>
+    <message id="mmslog-sharepage-la-file_size-gigabytes">
+        <source>%1 GB</source>
+        <translation>%1 ГБ</translation>
+    </message>
+    <message id="mmslog-sharepage-la-file_size-terabytes">
+        <source>%1 TB</source>
+        <translation>%1 ТБ</translation>
     </message>
     <message id="mmslog-sharepage-save-ok">
         <source>Saved %1</source>
