@@ -1,3 +1,4 @@
 build
 harbour-mmslog.pro.user
+harbour-mmslog.pro.user.*
 translations/*.qm
