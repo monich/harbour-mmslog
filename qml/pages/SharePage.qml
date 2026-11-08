@@ -25,6 +25,7 @@ Page {
     // The timer makes sure that animation is displayed for at least 1 second
     Timer {
         id: minWaitTimer
+
         interval: 1000
         running: true
     }
@@ -69,12 +70,14 @@ Page {
 
         PageHeader {
             id: header
+
             //% "Pack and send"
             title: qsTrId("mmslog-sharepage-header")
         }
 
         Item {
             id: shareMethods
+
             anchors {
                 top: header.bottom
                 left: parent.left
@@ -213,14 +216,13 @@ Page {
 
             visible: opacity > 0
             opacity: _readyToShare
-            height: implicitHeight
-            Behavior on opacity { FadeAnimation {} }
             wrapMode: Text.WordWrap
             font.pixelSize: Theme.fontSizeExtraSmall
             verticalAlignment: Text.AlignTop
             color: Theme.secondaryColor
             //% "Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone."
             text: qsTrId("mmslog-sharepage-warning")
+            Behavior on opacity { FadeAnimation {} }
         }
 
         states: [
@@ -236,8 +238,10 @@ Page {
                 }
                 PropertyChanges {
                     target: shareMethods
-                    anchors.bottomMargin: Theme.paddingLarge
-                    anchors.rightMargin: 0
+                    anchors {
+                        bottomMargin: Theme.paddingLarge
+                        rightMargin: 0
+                    }
                 }
                 PropertyChanges {
                     target: warning
@@ -258,8 +262,10 @@ Page {
                 }
                 PropertyChanges {
                     target: shareMethods
-                    anchors.bottomMargin: 0
-                    anchors.rightMargin: Theme.horizontalPageMargin
+                    anchors {
+                        bottomMargin: 0
+                        rightMargin: Theme.horizontalPageMargin
+                    }
                 }
                 PropertyChanges {
                     target: warning
