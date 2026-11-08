@@ -220,7 +220,7 @@ Page {
             font.pixelSize: Theme.fontSizeExtraSmall
             verticalAlignment: Text.AlignTop
             color: Theme.secondaryColor
-            //% "Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone."
+            //% "Keep in mind that some of the information contained in this archive may be considered private."
             text: qsTrId("mmslog-sharepage-warning")
             Behavior on opacity { FadeAnimation {} }
         }

@@ -41,8 +41,8 @@
         <translation>Pack and send</translation>
     </message>
     <message id="mmslog-sharepage-warning">
-        <source>Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone.</source>
-        <translation>Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone.</translation>
+        <source>Keep in mind that some of the information contained in this archive may be considered private.</source>
+        <translation>Keep in mind that some of the information contained in this archive may be considered private.</translation>
     </message>
     <message id="mmslog-sharepage-please-wait">
         <source>Please wait</source>

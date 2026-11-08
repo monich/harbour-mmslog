@@ -41,8 +41,8 @@
         <translation>Упаковка и отправка</translation>
     </message>
     <message id="mmslog-sharepage-warning">
-        <source>Keep in mind that some of the information contained in this archive may be considered private. If you would like to check what you are about to send, please consider sending it to yourself first and emailing this file to mms-debug@jolla.com later from your computer. If you trust Jolla, then you can conveniently email it to Jolla directly from your phone.</source>
-        <translation>Возможно, вы не захотите делиться с другими некоторой информацией, которую собрала эта программа. Вы можете сначала переслать файл на свой компьютер, проверить, нет ли внутри чего лишнего и отправить его по адресу mms-debug@jolla.com привычным вам способом. Если же вы доверяете Jolla, то можете отослать его в службу поддержки непосредственно с телефона.</translation>
+        <source>Keep in mind that some of the information contained in this archive may be considered private.</source>
+        <translation>Имейте в виду, что этот архив может содержать информацию, которой вы не хотели бы делиться с незнакомыми людьми.</translation>
     </message>
     <message id="mmslog-sharepage-please-wait">
         <source>Please wait</source>
