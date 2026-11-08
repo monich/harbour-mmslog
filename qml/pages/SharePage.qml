@@ -242,7 +242,7 @@ Page {
                 PropertyChanges {
                     target: warning
                     x: Theme.horizontalPageMargin
-                    y: window.height - height - Theme.paddingLarge
+                    y: page.height - height - Theme.paddingLarge
                     width: parent.width - 2*Theme.horizontalPageMargin
                 }
             },
